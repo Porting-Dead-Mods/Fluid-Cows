@@ -32,10 +32,9 @@ import static com.reclipse.moofluids.MFEntities.FLUID_COW;
 
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod(MooFluids.MODID)
-public class MooFluids {
-
+public final class MooFluids {
     public static final String MODID = "moofluids";
-    private static final Logger LOGGER = LogUtils.getLogger();
+    public static final Logger LOGGER = LogUtils.getLogger();
 
     // Deferred Registers
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, MODID);
