@@ -1,6 +1,7 @@
 package com.portingdeadmods.moofluids.entity;
 
 import com.portingdeadmods.moofluids.MFConfig;
+import com.portingdeadmods.moofluids.items.MFItems;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
@@ -24,19 +25,20 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.templates.FluidTank;
 import net.minecraftforge.registries.ForgeRegistries;
+
 import org.jetbrains.annotations.NotNull;
 
 public class FluidCow extends Cow {
-    private static final int MILKING_COOLDOWN = MFConfig.defaultMilkingCooldown;
+    public static final int MILKING_COOLDOWN = MFConfig.defaultMilkingCooldown;
 
+    private LazyOptional<IFluidHandler> lazyFluidHandler;
+    private Fluid cowFluid;
     private final FluidTank cowTank = new FluidTank(1000) {
         @Override
         public boolean isFluidValid(int tank, @NotNull FluidStack stack) {
             return stack.getFluid().equals(cowFluid);
         }
     };
-    private LazyOptional<IFluidHandler> lazyFluidHandler;
-    private Fluid cowFluid;
 
     public FluidCow(EntityType<? extends Cow> p_28285_, Level p_28286_) {
         super(p_28285_, p_28286_);
@@ -55,7 +57,6 @@ public class FluidCow extends Cow {
         return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 10.0).add(Attributes.MOVEMENT_SPEED, 0.20000000298023224);
     }
 
-
     @Override
     public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap) {
         return cap == ForgeCapabilities.FLUID_HANDLER ? LazyOptional.of(() -> cowTank).cast() : super.getCapability(cap);
@@ -73,6 +74,9 @@ public class FluidCow extends Cow {
                     player.playSound(SoundEvents.COW_MILK, 1.0F, 1.0F);
                     fluidHandler.drain(new FluidStack(getCowFluid(), 1000), IFluidHandler.FluidAction.EXECUTE);
                     player.setItemInHand(hand, ItemUtils.createFilledResult(itemInHand, player, getCowFluid().getBucket().getDefaultInstance()));
+                    return InteractionResult.SUCCESS;
+                } else if (itemInHand.is(MFItems.DEBUG_ITEM.get())) {
+                    fluidHandler.fill(new FluidStack(getCowFluid(), 1000), IFluidHandler.FluidAction.EXECUTE);
                     return InteractionResult.SUCCESS;
                 }
             }

@@ -28,10 +28,11 @@ public final class MooFluids {
         MFItems.ITEMS.register(modEventBus);
         MFItems.CREATIVE_MODE_TABS.register(modEventBus);
         MFEntities.ENTITIES.register(modEventBus);
-        MinecraftForge.EVENT_BUS.register(this);
         if (ModList.get().isLoaded("theoneprobe")) {
             MFTOPPlugin.registerCompatibility();
         }
+
+        MinecraftForge.EVENT_BUS.register(this);
 
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, MFConfig.SPEC);
     }

@@ -16,6 +16,7 @@ public final class MFConfig {
             .defineInRange("defaultMilkingCooldown", 3600, 0, Integer.MAX_VALUE);
     static final ForgeConfigSpec SPEC = BUILDER.build();
     public static int defaultMilkingCooldown;
+    public static int spawnRate = 100;
 
     @SubscribeEvent
     static void onLoad(final ModConfigEvent event) {
