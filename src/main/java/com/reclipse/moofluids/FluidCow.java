@@ -1,6 +1,7 @@
 package com.reclipse.moofluids;
 
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -14,6 +15,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemUtils;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
@@ -21,23 +23,37 @@ import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.templates.FluidTank;
-
+import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 
 public class FluidCow extends Cow {
     private static final int MILKING_COOLDOWN = MFConfig.defaultMilkingCooldown;
-    private final FluidTank cowTank = new FluidTank(Integer.MAX_VALUE) {
+
+
+
+    private final FluidTank cowTank = new FluidTank(1000) {
         @Override
         public boolean isFluidValid(int tank, @NotNull FluidStack stack) {
-            return stack.getFluid().equals(Fluids.WATER);
+            return stack.getFluid().equals(cowFluid);
         }
     };
+
     private LazyOptional<IFluidHandler> lazyFluidHandler;
+    private Fluid cowFluid;
 
     public FluidCow(EntityType<? extends Cow> p_28285_, Level p_28286_) {
         super(p_28285_, p_28286_);
         this.lazyFluidHandler = LazyOptional.of(() -> cowTank);
     }
+
+    public Fluid getCowFluid() {
+        return cowFluid;
+    }
+
+    public void setCowFluid(Fluid cowFluid) {
+        this.cowFluid = cowFluid;
+    }
+
 
     public static AttributeSupplier.@NotNull Builder createAttributes() {
         return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 10.0).add(Attributes.MOVEMENT_SPEED, 0.20000000298023224);
@@ -52,14 +68,9 @@ public class FluidCow extends Cow {
     @Override
     public @NotNull InteractionResult mobInteract(Player player, InteractionHand hand) {
         ItemStack itemstack = player.getItemInHand(hand);
-
+        System.out.println(Utils.fluidToString(getCowFluid()));
         IFluidHandler cowTankHandler = getCapability(ForgeCapabilities.FLUID_HANDLER).orElseThrow(NullPointerException::new);
 
-        if (itemstack.is(Items.LAVA_BUCKET) && !this.isBaby()) {
-            cowTankHandler.fill(new FluidStack(Fluids.LAVA, 1000), IFluidHandler.FluidAction.EXECUTE);
-            player.setItemInHand(hand, Items.BUCKET.getDefaultInstance());
-            MooFluids.LOGGER.debug("Fluid in tank: " + Utils.fluidStackToString(cowTankHandler.getFluidInTank(0)));
-        }
         if (itemstack.is(Items.BUCKET) && !this.isBaby()) {
             player.playSound(SoundEvents.COW_MILK, 1.0F, 1.0F);
             ItemStack fluidBucket = ItemUtils.createFilledResult(itemstack, player, Items.LAVA_BUCKET.getDefaultInstance());
@@ -69,6 +80,8 @@ public class FluidCow extends Cow {
         } else {
             return super.mobInteract(player, hand);
         }
+
+
     }
 
     @Override
@@ -89,6 +102,7 @@ public class FluidCow extends Cow {
         CompoundTag subTag = new CompoundTag();
         cowTank.writeToNBT(subTag);
         tag.put("FluidHandler", subTag);
+        tag.putString("FluidName", ForgeRegistries.FLUIDS.getKey(cowFluid).toString());
     }
 
     @Override
@@ -96,5 +110,7 @@ public class FluidCow extends Cow {
         super.readAdditionalSaveData(tag);
         CompoundTag subTag = tag.getCompound("FluidHandler");
         cowTank.readFromNBT(subTag);
+        String FluidName = tag.getString("FluidName");
+        cowFluid = ForgeRegistries.FLUIDS.getValue(new ResourceLocation(FluidName));
     }
 }
