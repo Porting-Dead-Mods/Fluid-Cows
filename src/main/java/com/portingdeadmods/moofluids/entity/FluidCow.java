@@ -1,5 +1,6 @@
-package com.reclipse.moofluids;
+package com.portingdeadmods.moofluids.entity;
 
+import com.portingdeadmods.moofluids.MFConfig;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
@@ -16,7 +17,6 @@ import net.minecraft.world.item.ItemUtils;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.Fluid;
-import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
@@ -29,15 +29,12 @@ import org.jetbrains.annotations.NotNull;
 public class FluidCow extends Cow {
     private static final int MILKING_COOLDOWN = MFConfig.defaultMilkingCooldown;
 
-
-
     private final FluidTank cowTank = new FluidTank(1000) {
         @Override
         public boolean isFluidValid(int tank, @NotNull FluidStack stack) {
             return stack.getFluid().equals(cowFluid);
         }
     };
-
     private LazyOptional<IFluidHandler> lazyFluidHandler;
     private Fluid cowFluid;
 
@@ -54,7 +51,6 @@ public class FluidCow extends Cow {
         this.cowFluid = cowFluid;
     }
 
-
     public static AttributeSupplier.@NotNull Builder createAttributes() {
         return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 10.0).add(Attributes.MOVEMENT_SPEED, 0.20000000298023224);
     }
@@ -67,50 +63,49 @@ public class FluidCow extends Cow {
 
     @Override
     public @NotNull InteractionResult mobInteract(Player player, InteractionHand hand) {
-        ItemStack itemstack = player.getItemInHand(hand);
-        System.out.println(Utils.fluidToString(getCowFluid()));
-        IFluidHandler cowTankHandler = getCapability(ForgeCapabilities.FLUID_HANDLER).orElseThrow(NullPointerException::new);
+        if (!this.level().isClientSide()) {
+            ItemStack itemInHand = player.getItemInHand(hand);
+            LazyOptional<IFluidHandler> optionalTank = getCapability(ForgeCapabilities.FLUID_HANDLER);
 
-        if (itemstack.is(Items.BUCKET) && !this.isBaby()) {
-            player.playSound(SoundEvents.COW_MILK, 1.0F, 1.0F);
-            ItemStack fluidBucket = ItemUtils.createFilledResult(itemstack, player, Items.LAVA_BUCKET.getDefaultInstance());
-            player.setItemInHand(hand, fluidBucket);
-            cowTankHandler.drain(new FluidStack(Fluids.LAVA, 1000), IFluidHandler.FluidAction.EXECUTE);
-            return InteractionResult.sidedSuccess(this.level().isClientSide);
-        } else {
-            return super.mobInteract(player, hand);
+            if (optionalTank.isPresent()) {
+                IFluidHandler fluidHandler = optionalTank.orElseThrow(NullPointerException::new);
+                if (itemInHand.is(Items.BUCKET) && fluidHandler.getFluidInTank(0).getAmount() >= 1000 && !this.isBaby()) {
+                    player.playSound(SoundEvents.COW_MILK, 1.0F, 1.0F);
+                    fluidHandler.drain(new FluidStack(getCowFluid(), 1000), IFluidHandler.FluidAction.EXECUTE);
+                    player.setItemInHand(hand, ItemUtils.createFilledResult(itemInHand, player, getCowFluid().getBucket().getDefaultInstance()));
+                    return InteractionResult.SUCCESS;
+                }
+            }
         }
-
-
+        return InteractionResult.FAIL;
     }
 
     @Override
     public void reviveCaps() {
         super.reviveCaps();
-        lazyFluidHandler = LazyOptional.of(() -> cowTank);
+        this.lazyFluidHandler = LazyOptional.of(() -> cowTank);
     }
 
     @Override
     public void invalidateCaps() {
         super.invalidateCaps();
-        lazyFluidHandler.invalidate();
+        this.lazyFluidHandler.invalidate();
     }
 
     @Override
     public void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
         CompoundTag subTag = new CompoundTag();
-        cowTank.writeToNBT(subTag);
+        this.cowTank.writeToNBT(subTag);
         tag.put("FluidHandler", subTag);
-        tag.putString("FluidName", ForgeRegistries.FLUIDS.getKey(cowFluid).toString());
+        tag.putString("FluidName", ForgeRegistries.FLUIDS.getKey(this.cowFluid).toString());
     }
 
     @Override
     public void readAdditionalSaveData(CompoundTag tag) {
         super.readAdditionalSaveData(tag);
         CompoundTag subTag = tag.getCompound("FluidHandler");
-        cowTank.readFromNBT(subTag);
-        String FluidName = tag.getString("FluidName");
-        cowFluid = ForgeRegistries.FLUIDS.getValue(new ResourceLocation(FluidName));
+        this.cowTank.readFromNBT(subTag);
+        this.cowFluid = ForgeRegistries.FLUIDS.getValue(new ResourceLocation(tag.getString("FluidName")));
     }
 }

@@ -1,5 +1,6 @@
-package com.reclipse.moofluids;
+package com.portingdeadmods.moofluids.entity;
 
+import com.portingdeadmods.moofluids.MooFluids;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -7,7 +8,7 @@ import net.minecraft.world.entity.MobCategory;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
 
-public class MFEntities {
+public final class MFEntities {
     public static final DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create(Registries.ENTITY_TYPE, MooFluids.MODID);
 
     public static final RegistryObject<EntityType<FluidCow>> FLUID_COW = register("fluid_cow", EntityType.Builder.of(FluidCow::new, MobCategory.AMBIENT));

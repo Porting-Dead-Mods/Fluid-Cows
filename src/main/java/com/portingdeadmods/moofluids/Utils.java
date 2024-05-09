@@ -1,4 +1,4 @@
-package com.reclipse.moofluids;
+package com.portingdeadmods.moofluids;
 
 import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.fluids.FluidStack;
