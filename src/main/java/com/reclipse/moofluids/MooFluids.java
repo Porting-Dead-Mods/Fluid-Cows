@@ -73,25 +73,4 @@ public final class MooFluids {
     public void onServerStarting(ServerStartingEvent event) {
         LOGGER.info("Server Starting...");
     }
-
-    @Mod.EventBusSubscriber(modid = MODID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
-    public static class ClientModEvents {
-        @SubscribeEvent
-        public static void onClientSetup(FMLClientSetupEvent event) {
-            LOGGER.info("Client setup...");
-        }
-    }
-
-    @Mod.EventBusSubscriber(modid = MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
-    public static class CommonEvents {
-        @SubscribeEvent
-        public static void onEntityAttributesCreation(EntityAttributeCreationEvent event) {
-            event.put(FLUID_COW.get(), FluidCow.createAttributes().build());
-        }
-
-        @SubscribeEvent
-        public static void onRegisterEntityRenderer(EntityRenderersEvent.RegisterRenderers event) {
-            event.registerEntityRenderer(FLUID_COW.get(), FluidCowRenderer::new);
-        }
-    }
 }
