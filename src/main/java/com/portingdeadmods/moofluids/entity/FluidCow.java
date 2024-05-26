@@ -79,8 +79,10 @@ public class FluidCow extends Cow {
 
     @Override
     public void finalizeSpawnChildFromBreeding(ServerLevel worldIn, Animal animal, @org.jetbrains.annotations.Nullable AgeableMob newMob) {
-        if (!worldIn.isClientSide() && newMob instanceof FluidCow fluidCow) {
-            fluidCow.setFluid(Utils.idFromFluid(getRandomFluid()));
+        var rnd = RandomSource.create();
+        int rndVal = Mth.nextInt(rnd, 0, 1);
+        if (!worldIn.isClientSide() && newMob instanceof FluidCow fluidCow && animal instanceof FluidCow fluidCowParent) {
+            fluidCow.setFluid(Utils.idFromFluid(rndVal == 0 ? getFluid() : fluidCowParent.getFluid()));
             if (this.getDelay() < 0) {
                 fluidCow.getEntityData().set(CAN_BE_MILKED, false);
             }

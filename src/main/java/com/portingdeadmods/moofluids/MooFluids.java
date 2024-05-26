@@ -28,6 +28,7 @@ public final class MooFluids {
 
 
     public MooFluids() {
+        ForgeMod.enableMilkFluid();
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
 
         MFItems.ITEMS.register(modEventBus);
