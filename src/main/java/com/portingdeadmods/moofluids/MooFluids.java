@@ -3,6 +3,7 @@ package com.portingdeadmods.moofluids;
 import com.portingdeadmods.moofluids.items.MFItems;
 import com.portingdeadmods.moofluids.compat.top.MFTOPPlugin;
 import com.portingdeadmods.moofluids.entity.MFEntities;
+import com.portingdeadmods.moofluids.networking.ModPackets;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModList;
@@ -31,6 +32,8 @@ public final class MooFluids {
         if (ModList.get().isLoaded("theoneprobe")) {
             MFTOPPlugin.registerCompatibility();
         }
+
+        ModPackets.register();
 
         MinecraftForge.EVENT_BUS.register(this);
 

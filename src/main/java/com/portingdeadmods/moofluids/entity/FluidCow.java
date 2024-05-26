@@ -1,6 +1,7 @@
 package com.portingdeadmods.moofluids.entity;
 
 import com.portingdeadmods.moofluids.MFConfig;
+import com.portingdeadmods.moofluids.MooFluids;
 import com.portingdeadmods.moofluids.items.MFItems;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
@@ -68,6 +69,7 @@ public class FluidCow extends Cow {
 
     @Override
     public @NotNull InteractionResult mobInteract(Player player, InteractionHand hand) {
+        MooFluids.LOGGER.debug("Cow Fluid: {}", getCowFluid());
         if (!this.level().isClientSide()) {
             ItemStack itemInHand = player.getItemInHand(hand);
             LazyOptional<IFluidHandler> optionalTank = getCapability(ForgeCapabilities.FLUID_HANDLER);

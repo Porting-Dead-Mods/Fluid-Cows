@@ -3,11 +3,16 @@ package com.portingdeadmods.moofluids;
 import com.portingdeadmods.moofluids.entity.FluidCow;
 import com.portingdeadmods.moofluids.entity.MFEntities;
 import com.portingdeadmods.moofluids.entity.renderer.RenderFluidCow;
+import com.portingdeadmods.moofluids.networking.CowFluidS2C;
+import com.portingdeadmods.moofluids.networking.ModPackets;
+import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.common.Mod;
 
 import java.util.List;
@@ -36,7 +41,11 @@ public final class MFEvents {
         public static void onCowSpawn(EntityEvent.EntityConstructing event) {
             if (event.getEntity() instanceof FluidCow fluidCow) {
                 if (fluidCow.getCowFluid() == null) {
-                    fluidCow.setCowFluid(getEntityFluid());
+                    Fluid entityFluid = getEntityFluid();
+                    if (entityFluid instanceof FlowingFluid flowingFluid) {
+                        fluidCow.setCowFluid(flowingFluid.getSource());
+                        ModPackets.sendToClients(new CowFluidS2C(new FluidStack(flowingFluid.getSource(), 1000), fluidCow.getId()));
+                    }
                 }
             }
         }

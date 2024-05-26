@@ -17,6 +17,8 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.animal.Cow;
+import net.minecraft.world.level.material.FlowingFluid;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
@@ -36,18 +38,17 @@ public class RenderFluidCow extends CowRenderer {
 
     @Override
     public void render(Cow cow, float yaw, float partialTicks, PoseStack poseStack, MultiBufferSource buffer, int packedLight) {
-        FluidCow fCow = (FluidCow)cow;
-        IClientFluidTypeExtensions fluidTypeExtensions = IClientFluidTypeExtensions.of(fCow.getCowFluid().getFluidType());
+        FluidCow fCow = (FluidCow) cow;
+        Fluid cowFluid = fCow.getCowFluid();
+        IClientFluidTypeExtensions fluidTypeExtensions = IClientFluidTypeExtensions.of(cowFluid);
         int color = fluidTypeExtensions.getTintColor();
-        MooFluids.LOGGER.info(fCow.getCowFluid());
-        float alpha = 1;
-        alpha *= (color >> 24 & 255) / 255f;
         float red = (color >> 16 & 255) / 255f;
         float green = (color >> 8 & 255) / 255f;
         float blue = (color & 255) / 255f;
-        renderWithColor(cow, yaw, partialTicks, poseStack, buffer, packedLight, red,green,blue);
+        renderWithColor(cow, yaw, partialTicks, poseStack, buffer, packedLight, red, green, blue);
     }
-    public void renderWithColor(Cow cow, float yaw, float partialTicks, PoseStack poseStack, MultiBufferSource buffer, int packedLight,float r,float g, float b){
+
+    public void renderWithColor(Cow cow, float yaw, float partialTicks, PoseStack poseStack, MultiBufferSource buffer, int packedLight, float r, float g, float b) {
         poseStack.pushPose();
 
         this.model.attackTime = this.getAttackAnim(cow, partialTicks);
