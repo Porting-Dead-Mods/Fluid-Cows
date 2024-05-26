@@ -20,13 +20,13 @@ public final class MFTopProvider implements IProbeInfoEntityProvider {
     public void addProbeEntityInfo(ProbeMode probeMode, IProbeInfo iProbeInfo, Player player, Level level, Entity entity, IProbeHitEntityData iProbeHitEntityData) {
         if (entity instanceof FluidCow fluidCow) {
             // MooFluids.LOGGER.debug("Render cow top info!!!");
-            FluidType fluidType = fluidCow.getCowFluid().getFluidType();
+            FluidType fluidType = fluidCow.getFluid().getFluidType();
             iProbeInfo.horizontal().text(Component.translatable("moofluids.top.fluid")
                     .append(": ")
                     .append(Component.literal(fluidType.toString())
                             .withStyle(ChatFormatting.AQUA)));
             iProbeInfo.horizontal().text(Component.translatable("moofluids.top.cooldown")
-                    .append(": ").append(Component.literal(String.valueOf(FluidCow.MILKING_COOLDOWN)).withStyle(ChatFormatting.AQUA)));
+                    .append(": ").append(Component.literal(String.valueOf(fluidCow.getDelay())).withStyle(ChatFormatting.AQUA)));
         }
     }
 }

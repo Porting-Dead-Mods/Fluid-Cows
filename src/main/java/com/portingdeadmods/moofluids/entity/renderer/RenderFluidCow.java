@@ -3,6 +3,7 @@ package com.portingdeadmods.moofluids.entity.renderer;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
+import com.portingdeadmods.moofluids.FluidUtils;
 import com.portingdeadmods.moofluids.MooFluids;
 import com.portingdeadmods.moofluids.entity.FluidCow;
 import net.minecraft.client.Minecraft;
@@ -39,9 +40,9 @@ public class RenderFluidCow extends CowRenderer {
     @Override
     public void render(Cow cow, float yaw, float partialTicks, PoseStack poseStack, MultiBufferSource buffer, int packedLight) {
         FluidCow fCow = (FluidCow) cow;
-        Fluid cowFluid = fCow.getCowFluid();
-        IClientFluidTypeExtensions fluidTypeExtensions = IClientFluidTypeExtensions.of(cowFluid);
-        int color = fluidTypeExtensions.getTintColor();
+        Fluid cowFluid = fCow.getFluid();
+        //MooFluids.LOGGER.info("Render: "+cowFluid);
+        int color = FluidUtils.getFluidColor(cowFluid);
         float red = (color >> 16 & 255) / 255f;
         float green = (color >> 8 & 255) / 255f;
         float blue = (color & 255) / 255f;
