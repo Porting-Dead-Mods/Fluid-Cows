@@ -2,18 +2,14 @@ package com.portingdeadmods.moofluids;
 
 import com.portingdeadmods.moofluids.entity.FluidCow;
 import com.portingdeadmods.moofluids.entity.MFEntities;
-import com.portingdeadmods.moofluids.entity.renderer.FluidCowRenderer;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.Items;
+import com.portingdeadmods.moofluids.entity.renderer.RenderFluidCow;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.registries.ForgeRegistries;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public final class MFEvents {
@@ -26,7 +22,7 @@ public final class MFEvents {
 
         @SubscribeEvent
         public static void onRegisterEntityRenderer(EntityRenderersEvent.RegisterRenderers event) {
-            event.registerEntityRenderer(MFEntities.FLUID_COW.get(), FluidCowRenderer::new);
+            event.registerEntityRenderer(MFEntities.FLUID_COW.get(), RenderFluidCow::new);
         }
 
     }
