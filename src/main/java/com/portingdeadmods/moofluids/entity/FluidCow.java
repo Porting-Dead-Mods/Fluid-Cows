@@ -3,34 +3,26 @@ package com.portingdeadmods.moofluids.entity;
 import com.portingdeadmods.moofluids.MFConfig;
 import com.portingdeadmods.moofluids.MooFluids;
 import com.portingdeadmods.moofluids.Utils;
-import com.portingdeadmods.moofluids.items.MFItems;
-import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.sounds.SoundEvents;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.MobSpawnType;
-import net.minecraft.world.entity.SpawnGroupData;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.animal.Cow;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.ItemUtils;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
@@ -38,6 +30,7 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidType;
 import net.minecraftforge.fluids.FluidUtil;
 import net.minecraftforge.registries.ForgeRegistries;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -56,12 +49,11 @@ public class FluidCow extends Cow {
         super(type, worldIn);
     }
 
-    public static AttributeSupplier createAttr() {
+    public static AttributeSupplier.@NotNull Builder createAttributes() {
         return Cow.createAttributes()
                 .add(Attributes.FOLLOW_RANGE, 16F)
                 .add(Attributes.MAX_HEALTH, 10F)
-                .add(Attributes.MOVEMENT_SPEED, 0.2F)
-                .build();
+                .add(Attributes.MOVEMENT_SPEED, 0.2F);
     }
 
     @Override
@@ -75,13 +67,25 @@ public class FluidCow extends Cow {
     @Override
     @ParametersAreNonnullByDefault
     public SpawnGroupData finalizeSpawn(ServerLevelAccessor worldIn, DifficultyInstance difficultyIn, MobSpawnType reason, @Nullable SpawnGroupData spawnDataIn, @Nullable CompoundTag dataTag) {
+        SpawnGroupData spawnGroupData = super.finalizeSpawn(worldIn, difficultyIn, reason, spawnDataIn, dataTag);
         if (!worldIn.isClientSide()) {
-            this.setFluid(ForgeRegistries.FLUIDS.getKey(this.getRandomFluid()).toString());
+            this.setFluid(Utils.idFromFluid(getRandomFluid()));
             if (this.getDelay() < 0) {
                 this.entityData.set(CAN_BE_MILKED, true);
             }
         }
-        return super.finalizeSpawn(worldIn, difficultyIn, reason, spawnDataIn, dataTag);
+        return spawnGroupData;
+    }
+
+    @Override
+    public void finalizeSpawnChildFromBreeding(ServerLevel worldIn, Animal animal, @org.jetbrains.annotations.Nullable AgeableMob newMob) {
+        if (!worldIn.isClientSide() && newMob instanceof FluidCow fluidCow) {
+            fluidCow.setFluid(Utils.idFromFluid(getRandomFluid()));
+            if (this.getDelay() < 0) {
+                fluidCow.getEntityData().set(CAN_BE_MILKED, false);
+            }
+        }
+        super.finalizeSpawnChildFromBreeding(worldIn, animal, newMob);
     }
 
     @Override
@@ -102,41 +106,35 @@ public class FluidCow extends Cow {
     public InteractionResult mobInteract(Player player, InteractionHand hand) {
         if (!this.level().isClientSide) {
             MooFluids.LOGGER.info(this.getFluid());
-            if (this.canBeMilked()) {
-                if (this.getFluid() != Fluids.EMPTY) {
-                    if (hand == InteractionHand.MAIN_HAND) {
-                        if (player.getItemInHand(hand).getItem() == Items.BUCKET) {
-                            ItemStack stack = FluidUtil.getFilledBucket(new FluidStack(this.getFluid(), 1000));
-                            if (player.getItemInHand(hand).getCount() > 1 || player.isCreative()) {
-                                int slotID = player.getInventory().getFreeSlot();
-                                if (slotID != -1) {
-                                    player.getInventory().items.set(slotID, stack);
-                                    if (!player.isCreative())
-                                        player.getItemInHand(hand).shrink(1);
-                                    this.setCanBeMilked(false);
-                                }
-                            } else {
-                                player.setItemInHand(hand, stack);
-                                this.setCanBeMilked(false);
-                            }
-                            return InteractionResult.SUCCESS;
-                        }
+            if (this.canBeMilked()
+                    && this.getFluid() != Fluids.EMPTY
+                    && hand == InteractionHand.MAIN_HAND
+                    && player.getItemInHand(hand).getItem() == Items.BUCKET) {
+                ItemStack stack = FluidUtil.getFilledBucket(new FluidStack(this.getFluid(), 1000));
+                if (player.getItemInHand(hand).getCount() > 1 || player.isCreative()) {
+                    int slotID = player.getInventory().getFreeSlot();
+                    if (slotID != -1) {
+                        player.getInventory().items.set(slotID, stack);
+                        if (!player.isCreative())
+                            player.getItemInHand(hand).shrink(1);
+                        this.setCanBeMilked(false);
                     }
+                } else {
+                    player.setItemInHand(hand, stack);
+                    this.setCanBeMilked(false);
                 }
+                return InteractionResult.SUCCESS;
+            } else {
+                return super.mobInteract(player, hand);
             }
         }
-        return InteractionResult.SUCCESS;
+        return InteractionResult.FAIL;
     }
 
     @Nullable
     @Override
     public Component getCustomName() {
         return this.getFluid() == null ? FluidStack.EMPTY.getDisplayName() : this.getFluidStack().getDisplayName();
-    }
-
-    @Override
-    public boolean canMate(@Nonnull Animal otherAnimal) {
-        return false;
     }
 
     public boolean canBeMilked() {
@@ -200,8 +198,13 @@ public class FluidCow extends Cow {
         this.setDelay(compound.getInt(TAG_DELAY));
     }
 
-    public static boolean canSpawn(EntityType<FluidCow> entityType, LevelAccessor levelAccessor, MobSpawnType mobSpawnType, BlockPos pos, RandomSource source) {
-        return checkAnimalSpawnRules(entityType, levelAccessor, mobSpawnType, pos, source);
+    @Nullable
+    @Override
+    public FluidCow getBreedOffspring(ServerLevel p_148890_, AgeableMob p_148891_) {
+        return MFEntities.FLUID_COW.get().create(p_148890_);
     }
 
+    public boolean isFood(ItemStack p_27600_) {
+        return p_27600_.is(Items.WHEAT);
+    }
 }

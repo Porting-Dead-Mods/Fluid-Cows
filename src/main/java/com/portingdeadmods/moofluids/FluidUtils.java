@@ -1,3 +1,7 @@
+/*
+ * Taken from Industrial Foregoing licensed under MIT. All credits for this code go to their team <3
+ */
+
 package com.portingdeadmods.moofluids;
 
 import net.minecraft.resources.ResourceLocation;
@@ -9,24 +13,17 @@ import net.minecraftforge.fluids.FluidStack;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class FluidUtils {
-    // TODO
-    // should item colors from ItemStackUtils also be cached?
-    // invalidate cache on resource reload
     public static ConcurrentHashMap<ResourceLocation, Integer> colorCache = new ConcurrentHashMap<>();
-
-    public static int getFluidColor(FluidStack stack) {
-        IClientFluidTypeExtensions renderProperties = IClientFluidTypeExtensions.of(stack.getFluid());
-        ResourceLocation location = renderProperties.getStillTexture(stack);
-        int tint = renderProperties.getTintColor(stack);
-        int textureColor = colorCache.computeIfAbsent(location, ColorUtils::getColorFrom);
-        return FastColor.ARGB32.multiply(textureColor, tint);
-    }
 
     public static int getFluidColor(Fluid fluid) {
         IClientFluidTypeExtensions renderProperties = IClientFluidTypeExtensions.of(fluid);
         ResourceLocation location = renderProperties.getStillTexture();
         int tint = renderProperties.getTintColor();
-        int textureColor = colorCache.computeIfAbsent(location, ColorUtils::getColorFrom);
+        int textureColor = 0;
+        try {
+            textureColor = colorCache.computeIfAbsent(location, ColorUtils::getColorFrom);
+        } catch (Exception ignored) {
+        }
         return FastColor.ARGB32.multiply(textureColor, tint);
     }
 }

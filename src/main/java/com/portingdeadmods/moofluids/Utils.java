@@ -33,4 +33,8 @@ public final class Utils {
     public static ImmutableList<Fluid> getFluids() {
         return ImmutableList.copyOf(FLUIDS);
     }
+
+    public static String idFromFluid(Fluid fluid) {
+        return ForgeRegistries.FLUIDS.getKey(fluid).toString();
+    }
 }

@@ -10,8 +10,8 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class ColorUtils {
-
+public final class ColorUtils {
+    @SuppressWarnings("deprecation")
     public static int getColorFrom(ResourceLocation location) {
         AbstractTexture texture = Minecraft.getInstance().getTextureManager().getTexture(TextureAtlas.LOCATION_BLOCKS);
         if (texture instanceof TextureAtlas) {
