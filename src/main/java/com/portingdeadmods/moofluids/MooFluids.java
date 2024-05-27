@@ -48,7 +48,7 @@ public final class MooFluids {
 
     public void onLoadComplete(FMLLoadCompleteEvent event) {
         for (Fluid fluid : ForgeRegistries.FLUIDS) {
-            if(!MFConfig.fluidBlacklist.contains(fluid)){
+            if(!MFConfig.fluidBlacklist.contains(Utils.idFromFluid(fluid))){
                 if (fluid.getBucket() != ItemStack.EMPTY.getItem()) {
                     Utils.add(fluid);
                 }
