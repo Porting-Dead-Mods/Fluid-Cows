@@ -107,7 +107,6 @@ public class FluidCow extends Cow {
     @ParametersAreNonnullByDefault
     public InteractionResult mobInteract(Player player, InteractionHand hand) {
         if (!this.level().isClientSide) {
-            MooFluids.LOGGER.info(this.getFluid());
             if (this.canBeMilked()
                     && this.getFluid() != Fluids.EMPTY
                     && hand == InteractionHand.MAIN_HAND

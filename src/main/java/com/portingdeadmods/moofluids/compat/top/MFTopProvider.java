@@ -19,7 +19,6 @@ public final class MFTopProvider implements IProbeInfoEntityProvider {
     @Override
     public void addProbeEntityInfo(ProbeMode probeMode, IProbeInfo iProbeInfo, Player player, Level level, Entity entity, IProbeHitEntityData iProbeHitEntityData) {
         if (entity instanceof FluidCow fluidCow) {
-            // MooFluids.LOGGER.debug("Render cow top info!!!");
             FluidType fluidType = fluidCow.getFluid().getFluidType();
             iProbeInfo.horizontal().text(Component.translatable("moofluids.top.fluid")
                     .append(": ")

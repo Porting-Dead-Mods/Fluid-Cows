@@ -32,9 +32,9 @@ public final class MooFluids {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
 
         MFItems.ITEMS.register(modEventBus);
-        MFItems.CREATIVE_MODE_TABS.register(modEventBus);
         MFEntities.ENTITIES.register(modEventBus);
         modEventBus.addListener(this::onLoadComplete);
+        
         if (ModList.get().isLoaded("theoneprobe")) {
             MFTOPPlugin.registerCompatibility();
         }

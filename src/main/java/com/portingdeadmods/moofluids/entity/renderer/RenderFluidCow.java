@@ -40,9 +40,7 @@ public class RenderFluidCow extends CowRenderer {
     @Override
     public void render(Cow cow, float yaw, float partialTicks, PoseStack poseStack, MultiBufferSource buffer, int packedLight) {
         FluidCow fCow = (FluidCow) cow;
-        Fluid cowFluid = fCow.getFluid();
-        //MooFluids.LOGGER.info("Render: "+cowFluid);
-        int color = FluidUtils.getFluidColor(cowFluid);
+        int color = FluidUtils.getFluidColor(fCow.getFluid());
         float red = (color >> 16 & 255) / 255f;
         float green = (color >> 8 & 255) / 255f;
         float blue = (color & 255) / 255f;

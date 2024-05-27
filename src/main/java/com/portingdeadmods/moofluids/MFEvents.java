@@ -3,12 +3,15 @@ package com.portingdeadmods.moofluids;
 import com.portingdeadmods.moofluids.entity.FluidCow;
 import com.portingdeadmods.moofluids.entity.MFEntities;
 import com.portingdeadmods.moofluids.entity.renderer.RenderFluidCow;
+import com.portingdeadmods.moofluids.items.MFItems;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.SpawnPlacements;
 import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.client.event.EntityRenderersEvent;
+import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
@@ -36,6 +39,12 @@ public final class MFEvents {
         public static void registerSpawnPlacement(SpawnPlacementRegisterEvent event) {
             event.register(MFEntities.FLUID_COW.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
                     Animal::checkAnimalSpawnRules, SpawnPlacementRegisterEvent.Operation.REPLACE);
+        }
+
+        @SubscribeEvent
+        public static void addItemToCreativeTab(BuildCreativeModeTabContentsEvent event) {
+            if (event.getTabKey() == CreativeModeTabs.SPAWN_EGGS)
+                event.accept(MFItems.FLUID_COW_SPAWN_EGG);
         }
 
     }

@@ -1,4 +1,6 @@
 {
   "moofluids.top.fluid": "Fluid",
-  "moofluids.top.cooldown": "Milking Cooldown"
+  "moofluids.top.cooldown": "Milking Cooldown",
+  "moofluids.top.cooldown": "Milking Cooldown",
+  "item.moofluids.fluid_cow_spawn_egg": "Fluid Cow Spawn Egg"
 }
