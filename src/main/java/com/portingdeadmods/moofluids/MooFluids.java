@@ -3,6 +3,7 @@ package com.portingdeadmods.moofluids;
 import com.portingdeadmods.moofluids.items.MFItems;
 import com.portingdeadmods.moofluids.compat.top.MFTOPPlugin;
 import com.portingdeadmods.moofluids.entity.MFEntities;
+import com.portingdeadmods.moofluids.MFConfig;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.common.ForgeMod;
@@ -44,10 +45,13 @@ public final class MooFluids {
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, MFConfig.SPEC);
     }
 
+
     public void onLoadComplete(FMLLoadCompleteEvent event) {
         for (Fluid fluid : ForgeRegistries.FLUIDS) {
-            if (fluid.getBucket() != ItemStack.EMPTY.getItem()) {
-                Utils.add(fluid);
+            if(!MFConfig.fluidBlacklist.contains(fluid)){
+                if (fluid.getBucket() != ItemStack.EMPTY.getItem()) {
+                    Utils.add(fluid);
+                }
             }
         }
     }
