@@ -57,7 +57,11 @@ public final class MFEvents {
 
             if (event.getEntity() instanceof FluidCow mooFluidEntity) {
                 if (mooFluidEntity.getFluid() == null || mooFluidEntity.getFluid() == Fluids.EMPTY) {
-                    mooFluidEntity.setHealth(0);
+                    if (mooFluidEntity.isBaby()) {
+                        mooFluidEntity.setFluid(Utils.idFromFluid(mooFluidEntity.getRandomFluid()));
+                    } else {
+                        mooFluidEntity.setHealth(0);
+                    }
                 }
             }
         }

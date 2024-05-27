@@ -67,14 +67,13 @@ public class FluidCow extends Cow {
     @Override
     @ParametersAreNonnullByDefault
     public SpawnGroupData finalizeSpawn(ServerLevelAccessor worldIn, DifficultyInstance difficultyIn, MobSpawnType reason, @Nullable SpawnGroupData spawnDataIn, @Nullable CompoundTag dataTag) {
-        SpawnGroupData spawnGroupData = super.finalizeSpawn(worldIn, difficultyIn, reason, spawnDataIn, dataTag);
         if (!worldIn.isClientSide()) {
             this.setFluid(Utils.idFromFluid(getRandomFluid()));
             if (this.getDelay() < 0) {
                 this.entityData.set(CAN_BE_MILKED, true);
             }
         }
-        return spawnGroupData;
+        return super.finalizeSpawn(worldIn, difficultyIn, reason, spawnDataIn, dataTag);
     }
 
     @Override
