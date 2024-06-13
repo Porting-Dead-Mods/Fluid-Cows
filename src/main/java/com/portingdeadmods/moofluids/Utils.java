@@ -2,12 +2,11 @@ package com.portingdeadmods.moofluids;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +26,7 @@ public final class Utils {
     }
 
     public static Fluid get(String registryName) {
-        return FLUIDS.stream().filter(fluid -> ForgeRegistries.FLUIDS.getKey(fluid).toString().equals(registryName)).findFirst().orElse(null);
+        return FLUIDS.stream().filter(fluid -> BuiltInRegistries.FLUID.getKey(fluid).toString().equals(registryName)).findFirst().orElse(null);
     }
 
     public static ImmutableList<Fluid> getFluids() {
@@ -35,6 +34,6 @@ public final class Utils {
     }
 
     public static String idFromFluid(Fluid fluid) {
-        return ForgeRegistries.FLUIDS.getKey(fluid).toString();
+        return BuiltInRegistries.FLUID.getKey(fluid).toString();
     }
 }

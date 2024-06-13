@@ -7,29 +7,30 @@ import com.portingdeadmods.moofluids.items.MFItems;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.SpawnPlacementTypes;
 import net.minecraft.world.entity.SpawnPlacements;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraftforge.client.event.EntityRenderersEvent;
-import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
-import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
-import net.minecraftforge.event.entity.EntityEvent;
-import net.minecraftforge.event.entity.EntityJoinLevelEvent;
-import net.minecraftforge.event.entity.SpawnPlacementRegisterEvent;
-import net.minecraftforge.eventbus.api.Event;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.event.lifecycle.FMLLoadCompleteEvent;
+import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
+import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
+import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
+import net.neoforged.neoforge.event.entity.SpawnPlacementRegisterEvent;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public final class MFEvents {
-    @Mod.EventBusSubscriber(modid = MooFluids.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
+    @EventBusSubscriber(modid = MooFluids.MODID, bus = EventBusSubscriber.Bus.MOD)
     public static class CommonEvents {
         @SubscribeEvent
         public static void onEntityAttributesCreation(EntityAttributeCreationEvent event) {
@@ -43,8 +44,27 @@ public final class MFEvents {
 
         @SubscribeEvent
         public static void registerSpawnPlacement(SpawnPlacementRegisterEvent event) {
-            event.register(MFEntities.FLUID_COW.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+            event.register(MFEntities.FLUID_COW.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
                     Animal::checkAnimalSpawnRules, SpawnPlacementRegisterEvent.Operation.REPLACE);
+        }
+
+        @SubscribeEvent
+        public static void onLoadComplete(FMLLoadCompleteEvent event) {
+            List<String> blackListedMods = new ArrayList<>();
+
+            for (String blackListedFluid : MFConfig.fluidBlacklist) {
+                if (blackListedFluid.contains("*"))
+                    blackListedMods.add(blackListedFluid.split(":")[0]);
+            }
+
+            for (Fluid fluid : BuiltInRegistries.FLUID) {
+                String namespace = BuiltInRegistries.FLUID.getKey(fluid).getNamespace();
+                if(!MFConfig.fluidBlacklist.contains(Utils.idFromFluid(fluid)) && !blackListedMods.contains(namespace)){
+                    if (fluid.getBucket() != ItemStack.EMPTY.getItem()) {
+                        Utils.add(fluid);
+                    }
+                }
+            }
         }
 
         @SubscribeEvent
@@ -55,7 +75,7 @@ public final class MFEvents {
 
     }
 
-    @Mod.EventBusSubscriber(modid = MooFluids.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
+    @EventBusSubscriber(modid = MooFluids.MODID, bus = EventBusSubscriber.Bus.GAME)
     public static class CommonForgeEvents {
         @SubscribeEvent
         public static void onEntityJoinWorld(EntityJoinLevelEvent event) {
@@ -66,20 +86,18 @@ public final class MFEvents {
                     if (mooFluidEntity.isBaby()) {
                         if (event.loadedFromDisk()) {
                             event.setCanceled(true);
-                            event.setResult(Event.Result.DENY);
                             return;
                         }
 
                         Fluid randomFluid = mooFluidEntity.getRandomFluid();
                         if (randomFluid != null) {
                             mooFluidEntity.setFluid(Utils.idFromFluid(randomFluid));
+                            return;
                         } else {
                             event.setCanceled(true);
-                            event.setResult(Event.Result.DENY);
                         }
                     } else {
                         event.setCanceled(true);
-                        event.setResult(Event.Result.DENY);
                     }
                     printError();
                 }

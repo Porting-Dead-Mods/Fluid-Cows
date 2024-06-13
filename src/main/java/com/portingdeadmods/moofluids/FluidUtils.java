@@ -7,7 +7,7 @@ package com.portingdeadmods.moofluids;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FastColor;
 import net.minecraft.world.level.material.Fluid;
-import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
+import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 
 import java.util.concurrent.ConcurrentHashMap;
 

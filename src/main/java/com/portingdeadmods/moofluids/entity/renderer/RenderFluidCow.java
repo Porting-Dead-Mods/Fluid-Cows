@@ -14,23 +14,16 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.core.Direction;
+import net.minecraft.util.FastColor;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.animal.Cow;
-import net.minecraft.world.level.material.FlowingFluid;
-import net.minecraft.world.level.material.Fluid;
-import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
-import net.minecraftforge.fml.common.Mod;
-import org.joml.Vector3f;
-
-import java.util.Iterator;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.fml.common.EventBusSubscriber;
 
 import static com.portingdeadmods.moofluids.MooFluids.MODID;
 
-@Mod.EventBusSubscriber(modid = MODID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public class RenderFluidCow extends CowRenderer {
 
     public RenderFluidCow(EntityRendererProvider.Context renderManager) {
@@ -41,13 +34,10 @@ public class RenderFluidCow extends CowRenderer {
     public void render(Cow cow, float yaw, float partialTicks, PoseStack poseStack, MultiBufferSource buffer, int packedLight) {
         FluidCow fCow = (FluidCow) cow;
         int color = FluidUtils.getFluidColor(fCow.getFluid());
-        float red = (color >> 16 & 255) / 255f;
-        float green = (color >> 8 & 255) / 255f;
-        float blue = (color & 255) / 255f;
-        renderWithColor(cow, yaw, partialTicks, poseStack, buffer, packedLight, red, green, blue);
+        renderWithColor(cow, yaw, partialTicks, poseStack, buffer, packedLight, color);
     }
 
-    public void renderWithColor(Cow cow, float yaw, float partialTicks, PoseStack poseStack, MultiBufferSource buffer, int packedLight, float r, float g, float b) {
+    public void renderWithColor(Cow cow, float yaw, float partialTicks, PoseStack poseStack, MultiBufferSource buffer, int packedLight, int color) {
         poseStack.pushPose();
 
         this.model.attackTime = this.getAttackAnim(cow, partialTicks);
@@ -63,7 +53,7 @@ public class RenderFluidCow extends CowRenderer {
             headBodyRotationDifference *= -1.0F;
         }
 
-        this.setupRotations(cow, poseStack, this.getBob(cow, partialTicks), bodyRotation, partialTicks);
+        this.setupRotations(cow, poseStack, this.getBob(cow, partialTicks), bodyRotation, partialTicks, 1);
         poseStack.scale(-1.0F, -1.0F, 1.0F);
         this.scale(cow, poseStack, partialTicks);
         poseStack.translate(0.0F, -1.501F, 0.0F);
@@ -90,7 +80,7 @@ public class RenderFluidCow extends CowRenderer {
         if (renderType != null) {
             VertexConsumer vertexConsumer = buffer.getBuffer(renderType);
             int overlayCoords = getOverlayCoords(cow, this.getWhiteOverlayProgress(cow, partialTicks));
-            this.model.renderToBuffer(poseStack, vertexConsumer, packedLight, overlayCoords, r, g, b, 1.0F);
+            this.model.renderToBuffer(poseStack, vertexConsumer, packedLight, overlayCoords, color);
         }
 
         poseStack.popPose();

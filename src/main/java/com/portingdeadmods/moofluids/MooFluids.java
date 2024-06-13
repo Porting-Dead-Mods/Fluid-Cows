@@ -3,26 +3,27 @@ package com.portingdeadmods.moofluids;
 import com.portingdeadmods.moofluids.items.MFItems;
 import com.portingdeadmods.moofluids.compat.top.MFTOPPlugin;
 import com.portingdeadmods.moofluids.entity.MFEntities;
-import com.portingdeadmods.moofluids.MFConfig;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.Fluid;
-import net.minecraftforge.common.ForgeMod;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fml.ModList;
-import net.minecraftforge.fml.ModLoadingContext;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.ModList;
+import net.neoforged.fml.ModLoadingContext;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.config.ModConfig;
+import net.neoforged.fml.event.lifecycle.FMLLoadCompleteEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.common.NeoForgeMod;
+import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
 
-// The value here should match an entry in the META-INF/mods.toml file
+// The value here should match an entry in the META-INF/neoforge.mods.toml file
 @Mod(MooFluids.MODID)
 public final class MooFluids {
     public static final String MODID = "moofluids";
@@ -30,40 +31,16 @@ public final class MooFluids {
 
     // Deferred Registers
 
+    public MooFluids(IEventBus modEventbus, ModContainer modContainer) {
+        NeoForgeMod.enableMilkFluid();
 
-    public MooFluids() {
-        ForgeMod.enableMilkFluid();
-        IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
-
-        MFItems.ITEMS.register(modEventBus);
-        MFEntities.ENTITIES.register(modEventBus);
-        modEventBus.addListener(this::onLoadComplete);
+        MFItems.ITEMS.register(modEventbus);
+        MFEntities.ENTITIES.register(modEventbus);
         
         if (ModList.get().isLoaded("theoneprobe")) {
-            MFTOPPlugin.registerCompatibility();
+            //MFTOPPlugin.registerCompatibility();
         }
 
-        MinecraftForge.EVENT_BUS.register(this);
-
-        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, MFConfig.SPEC);
-    }
-
-
-    public void onLoadComplete(FMLLoadCompleteEvent event) {
-        List<String> blackListedMods = new ArrayList<>();
-
-        for (String blackListedFluid : MFConfig.fluidBlacklist) {
-            if (blackListedFluid.contains("*"))
-                blackListedMods.add(blackListedFluid.split(":")[0]);
-        }
-
-        for (Fluid fluid : ForgeRegistries.FLUIDS) {
-            String namespace = ForgeRegistries.FLUID_TYPES.get().getKey(fluid.getFluidType()).getNamespace();
-            if(!MFConfig.fluidBlacklist.contains(Utils.idFromFluid(fluid)) && !blackListedMods.contains(namespace)){
-                if (fluid.getBucket() != ItemStack.EMPTY.getItem()) {
-                    Utils.add(fluid);
-                }
-            }
-        }
+        modContainer.registerConfig(ModConfig.Type.COMMON, MFConfig.SPEC);
     }
 }

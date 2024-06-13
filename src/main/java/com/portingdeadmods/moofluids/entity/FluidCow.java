@@ -4,6 +4,8 @@ import com.google.common.collect.ImmutableList;
 import com.portingdeadmods.moofluids.MFConfig;
 import com.portingdeadmods.moofluids.MooFluids;
 import com.portingdeadmods.moofluids.Utils;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -27,10 +29,9 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.FluidType;
-import net.minecraftforge.fluids.FluidUtil;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidType;
+import net.neoforged.neoforge.fluids.FluidUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -57,17 +58,16 @@ public class FluidCow extends Cow {
     }
 
     @Override
-    protected void defineSynchedData() {
-        super.defineSynchedData();
-        this.entityData.define(FLUID_NAME, ForgeRegistries.FLUIDS.getKey(Fluids.EMPTY).toString());
-        this.entityData.define(DELAY, MFConfig.defaultMilkingCooldown);
-        this.entityData.define(CAN_BE_MILKED, true);
+    protected void defineSynchedData(SynchedEntityData.Builder pBuilder) {
+        super.defineSynchedData(pBuilder);
+        pBuilder.define(FLUID_NAME, BuiltInRegistries.FLUID.getKey(Fluids.EMPTY).toString());
+        pBuilder.define(DELAY, MFConfig.defaultMilkingCooldown);
+        pBuilder.define(CAN_BE_MILKED, true);
     }
 
     @Override
-    @ParametersAreNonnullByDefault
-    public SpawnGroupData finalizeSpawn(ServerLevelAccessor worldIn, DifficultyInstance difficultyIn, MobSpawnType reason, @Nullable SpawnGroupData spawnDataIn, @Nullable CompoundTag dataTag) {
-        if (!worldIn.isClientSide()) {
+    public SpawnGroupData finalizeSpawn(ServerLevelAccessor pLevel, DifficultyInstance pDifficulty, MobSpawnType pSpawnType, @Nullable SpawnGroupData pSpawnGroupData) {
+        if (!pLevel.isClientSide()) {
             Fluid randomFluid = getRandomFluid();
             if (randomFluid != null) {
                 this.setFluid(Utils.idFromFluid(randomFluid));
@@ -76,7 +76,7 @@ public class FluidCow extends Cow {
                 }
             }
         }
-        return super.finalizeSpawn(worldIn, difficultyIn, reason, spawnDataIn, dataTag);
+        return super.finalizeSpawn(pLevel, pDifficulty, pSpawnType, pSpawnGroupData);
     }
 
     @Override
@@ -137,7 +137,7 @@ public class FluidCow extends Cow {
     @Nullable
     @Override
     public Component getCustomName() {
-        return this.getFluid() == null ? FluidStack.EMPTY.getDisplayName() : this.getFluidStack().getDisplayName();
+        return this.getFluid() == null ? FluidStack.EMPTY.getHoverName() : this.getFluidStack().getHoverName();
     }
 
     public boolean canBeMilked() {
@@ -155,7 +155,7 @@ public class FluidCow extends Cow {
     }
 
     public Fluid getFluid() {
-        if (this.entityData.get(FLUID_NAME).equals(ForgeRegistries.FLUIDS.getKey(Fluids.EMPTY).toString()))
+        if (this.entityData.get(FLUID_NAME).equals(BuiltInRegistries.FLUID.getKey(Fluids.EMPTY).toString()))
             return Fluids.EMPTY;
 
         return Utils.get(this.entityData.get(FLUID_NAME));
@@ -190,10 +190,10 @@ public class FluidCow extends Cow {
     public void addAdditionalSaveData(@NotNull CompoundTag compound) {
         super.addAdditionalSaveData(compound);
         compound.putInt(TAG_DELAY, this.getDelay());
-        if (ForgeRegistries.FLUIDS.getKey(this.getFluid()) == null) {
-            compound.putString(TAG_FLUID, ForgeRegistries.FLUIDS.getKey(Fluids.EMPTY).toString());
+        if (BuiltInRegistries.FLUID.containsValue(this.getFluid())) {
+            compound.putString(TAG_FLUID, BuiltInRegistries.FLUID.getKey(Fluids.EMPTY).toString());
         } else {
-            compound.putString(TAG_FLUID, ForgeRegistries.FLUIDS.getKey(this.getFluid()).toString());
+            compound.putString(TAG_FLUID, BuiltInRegistries.FLUID.getKey(this.getFluid()).toString());
         }
     }
 
