@@ -7,9 +7,12 @@ import net.minecraftforge.fml.event.config.ModConfigEvent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.registries.ForgeRegistries;
 
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 
@@ -17,6 +20,8 @@ import java.util.stream.Collectors;
 // Demonstrates how to use Forge's config APIs
 @Mod.EventBusSubscriber(modid = MooFluids.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public final class MFConfig {
+    public static final Pattern FLUIDNAME_REGEX = Pattern.compile("^[a-zA-Z0-9_]+:(\\*|[a-zA-Z0-9_]+)$");
+
     private static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
     private static final ForgeConfigSpec.IntValue DEFAULT_MILKING_COOLDOWN = BUILDER
             .comment("The number of ticks before you can milk a fluid cow agan")
@@ -24,7 +29,8 @@ public final class MFConfig {
 
     public static final ForgeConfigSpec.ConfigValue<List<? extends String>> SPAWN_BLACKLIST = BUILDER
             .comment("A list of modid:fluid to blacklist from spawning.")
-            .defineListAllowEmpty("fluidBlacklist", List.of(), MFConfig::validateEntityName);
+            .comment("Can also use modid:* to disable all fluids from a mod.")
+            .defineListAllowEmpty("fluidBlacklist", List.of(), MFConfig::validateFluidName);
 
 
     static final ForgeConfigSpec SPEC = BUILDER.build();
@@ -34,13 +40,17 @@ public final class MFConfig {
     @SubscribeEvent
     static void onLoad(final ModConfigEvent event) {
         defaultMilkingCooldown = DEFAULT_MILKING_COOLDOWN.get();
-        fluidBlacklist = SPAWN_BLACKLIST.get().stream()
-                .map(str -> (String) str)
-                .collect(Collectors.toSet());
+        fluidBlacklist = new HashSet<>(SPAWN_BLACKLIST.get());
     }
 
-    private static boolean validateEntityName(final Object obj) {
-        return obj instanceof final String fluidName
-                && ForgeRegistries.FLUIDS.containsKey(new ResourceLocation(fluidName));
+    private static boolean validateFluidName(final Object obj) {
+        if (obj instanceof final String fluidName) {
+            Matcher matcher = FLUIDNAME_REGEX.matcher(fluidName);
+
+            if (matcher.matches()) return true;
+
+            return ForgeRegistries.FLUIDS.containsKey(new ResourceLocation(fluidName));
+        }
+        return false;
     }
 }

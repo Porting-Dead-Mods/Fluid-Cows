@@ -1,5 +1,6 @@
 package com.portingdeadmods.moofluids.entity;
 
+import com.google.common.collect.ImmutableList;
 import com.portingdeadmods.moofluids.MFConfig;
 import com.portingdeadmods.moofluids.MooFluids;
 import com.portingdeadmods.moofluids.Utils;
@@ -31,9 +32,8 @@ import net.minecraftforge.fluids.FluidType;
 import net.minecraftforge.fluids.FluidUtil;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 
@@ -68,9 +68,12 @@ public class FluidCow extends Cow {
     @ParametersAreNonnullByDefault
     public SpawnGroupData finalizeSpawn(ServerLevelAccessor worldIn, DifficultyInstance difficultyIn, MobSpawnType reason, @Nullable SpawnGroupData spawnDataIn, @Nullable CompoundTag dataTag) {
         if (!worldIn.isClientSide()) {
-            this.setFluid(Utils.idFromFluid(getRandomFluid()));
-            if (this.getDelay() < 0) {
-                this.entityData.set(CAN_BE_MILKED, true);
+            Fluid randomFluid = getRandomFluid();
+            if (randomFluid != null) {
+                this.setFluid(Utils.idFromFluid(randomFluid));
+                if (this.getDelay() < 0) {
+                    this.entityData.set(CAN_BE_MILKED, true);
+                }
             }
         }
         return super.finalizeSpawn(worldIn, difficultyIn, reason, spawnDataIn, dataTag);
@@ -102,7 +105,7 @@ public class FluidCow extends Cow {
     }
 
     @Override
-    @Nonnull
+    @NotNull
     @ParametersAreNonnullByDefault
     public InteractionResult mobInteract(Player player, InteractionHand hand) {
         if (!this.level().isClientSide) {
@@ -174,14 +177,17 @@ public class FluidCow extends Cow {
         this.setDelay(this.getDelay() - 1);
     }
 
-    public Fluid getRandomFluid() {
+    public @Nullable Fluid getRandomFluid() {
+        ImmutableList<Fluid> fluids = Utils.getFluids();
+        if (fluids.isEmpty()) return null;
+
         var rnd = RandomSource.create();
-        int rndVal = Mth.nextInt(rnd, 0, Utils.getFluids().size() - 1);
-        return Utils.getFluids().get(rndVal);
+        int rndVal = Mth.nextInt(rnd, 0, fluids.size() - 1);
+        return fluids.get(rndVal);
     }
 
     @Override
-    public void addAdditionalSaveData(@Nonnull CompoundTag compound) {
+    public void addAdditionalSaveData(@NotNull CompoundTag compound) {
         super.addAdditionalSaveData(compound);
         compound.putInt(TAG_DELAY, this.getDelay());
         if (ForgeRegistries.FLUIDS.getKey(this.getFluid()) == null) {
@@ -192,7 +198,7 @@ public class FluidCow extends Cow {
     }
 
     @Override
-    public void readAdditionalSaveData(@Nonnull CompoundTag compound) {
+    public void readAdditionalSaveData(@NotNull CompoundTag compound) {
         super.readAdditionalSaveData(compound);
         this.setFluid(compound.getString(TAG_FLUID));
         this.setDelay(compound.getInt(TAG_DELAY));
