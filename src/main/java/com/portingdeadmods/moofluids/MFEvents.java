@@ -4,11 +4,16 @@ import com.portingdeadmods.moofluids.entity.FluidCow;
 import com.portingdeadmods.moofluids.entity.MFEntities;
 import com.portingdeadmods.moofluids.entity.renderer.RenderFluidCow;
 import com.portingdeadmods.moofluids.items.MFItems;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.SpawnPlacements;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
@@ -16,6 +21,7 @@ import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.SpawnPlacementRegisterEvent;
+import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.common.Mod;
@@ -58,11 +64,32 @@ public final class MFEvents {
             if (event.getEntity() instanceof FluidCow mooFluidEntity) {
                 if (mooFluidEntity.getFluid() == null || mooFluidEntity.getFluid() == Fluids.EMPTY) {
                     if (mooFluidEntity.isBaby()) {
-                        mooFluidEntity.setFluid(Utils.idFromFluid(mooFluidEntity.getRandomFluid()));
+                        if (event.loadedFromDisk()) {
+                            event.setCanceled(true);
+                            event.setResult(Event.Result.DENY);
+                            return;
+                        }
+
+                        Fluid randomFluid = mooFluidEntity.getRandomFluid();
+                        if (randomFluid != null) {
+                            mooFluidEntity.setFluid(Utils.idFromFluid(randomFluid));
+                        } else {
+                            event.setCanceled(true);
+                            event.setResult(Event.Result.DENY);
+                        }
                     } else {
-                        mooFluidEntity.setHealth(0);
+                        event.setCanceled(true);
+                        event.setResult(Event.Result.DENY);
                     }
+                    printError();
                 }
+            }
+        }
+
+        private static void printError() {
+            LocalPlayer player = Minecraft.getInstance().player;
+            if (player != null) {
+                player.sendSystemMessage(Component.literal("Cannot spawn fluid cows, since all fluids are disabled for cows").withStyle(ChatFormatting.RED));
             }
         }
     }

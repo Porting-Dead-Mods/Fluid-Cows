@@ -19,6 +19,9 @@ import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.ArrayList;
+import java.util.List;
+
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod(MooFluids.MODID)
 public final class MooFluids {
@@ -47,8 +50,16 @@ public final class MooFluids {
 
 
     public void onLoadComplete(FMLLoadCompleteEvent event) {
+        List<String> blackListedMods = new ArrayList<>();
+
+        for (String blackListedFluid : MFConfig.fluidBlacklist) {
+            if (blackListedFluid.contains("*"))
+                blackListedMods.add(blackListedFluid.split(":")[0]);
+        }
+
         for (Fluid fluid : ForgeRegistries.FLUIDS) {
-            if(!MFConfig.fluidBlacklist.contains(Utils.idFromFluid(fluid))){
+            String namespace = ForgeRegistries.FLUID_TYPES.get().getKey(fluid.getFluidType()).getNamespace();
+            if(!MFConfig.fluidBlacklist.contains(Utils.idFromFluid(fluid)) && !blackListedMods.contains(namespace)){
                 if (fluid.getBucket() != ItemStack.EMPTY.getItem()) {
                     Utils.add(fluid);
                 }

@@ -8,11 +8,10 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FastColor;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
-import net.minecraftforge.fluids.FluidStack;
 
 import java.util.concurrent.ConcurrentHashMap;
 
-public class FluidUtils {
+public final class FluidUtils {
     public static ConcurrentHashMap<ResourceLocation, Integer> colorCache = new ConcurrentHashMap<>();
 
     public static int getFluidColor(Fluid fluid) {
