@@ -134,12 +134,6 @@ public class FluidCow extends Cow {
         return InteractionResult.FAIL;
     }
 
-    @Nullable
-    @Override
-    public Component getCustomName() {
-        return this.getFluid() == null ? FluidStack.EMPTY.getDisplayName() : this.getFluidStack().getDisplayName();
-    }
-
     public boolean canBeMilked() {
         return this.entityData.get(CAN_BE_MILKED);
     }

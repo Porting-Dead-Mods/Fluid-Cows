@@ -43,8 +43,10 @@ public final class MFEvents {
 
         @SubscribeEvent
         public static void registerSpawnPlacement(SpawnPlacementRegisterEvent event) {
-            event.register(MFEntities.FLUID_COW.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
-                    Animal::checkAnimalSpawnRules, SpawnPlacementRegisterEvent.Operation.REPLACE);
+            if (MFConfig.naturalSpawning) {
+                event.register(MFEntities.FLUID_COW.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                        Animal::checkAnimalSpawnRules, SpawnPlacementRegisterEvent.Operation.REPLACE);
+            }
         }
 
         @SubscribeEvent

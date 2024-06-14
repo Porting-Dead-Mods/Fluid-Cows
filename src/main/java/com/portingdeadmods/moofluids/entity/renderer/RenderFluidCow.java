@@ -44,6 +44,7 @@ public class RenderFluidCow extends CowRenderer {
         float red = (color >> 16 & 255) / 255f;
         float green = (color >> 8 & 255) / 255f;
         float blue = (color & 255) / 255f;
+        super.render(cow, yaw, partialTicks, poseStack, buffer, packedLight);
         renderWithColor(cow, yaw, partialTicks, poseStack, buffer, packedLight, red, green, blue);
     }
 
