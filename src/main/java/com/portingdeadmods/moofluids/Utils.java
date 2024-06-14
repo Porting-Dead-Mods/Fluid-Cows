@@ -3,12 +3,9 @@ package com.portingdeadmods.moofluids;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public final class Utils {
@@ -34,6 +31,8 @@ public final class Utils {
     }
 
     public static String idFromFluid(Fluid fluid) {
-        return BuiltInRegistries.FLUID.getKey(fluid).toString();
+        String string = BuiltInRegistries.FLUID.getKey(fluid).toString();
+        MooFluids.LOGGER.debug("fluid: {}", string);
+        return string;
     }
 }

@@ -11,14 +11,6 @@ group = mod_group_id
 
 repositories {
     mavenLocal()
-    maven {
-        name 'Maven for PR #1076' // https://github.com/neoforged/NeoForge/pull/1076
-        url 'https://prmaven.neoforged.net/NeoForge/pr1076'
-        content {
-            includeModule('net.neoforged', 'testframework')
-            includeModule('net.neoforged', 'neoforge')
-        }
-    }
 }
 
 base {

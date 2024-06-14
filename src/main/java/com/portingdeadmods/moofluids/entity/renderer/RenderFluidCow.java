@@ -2,27 +2,19 @@ package com.portingdeadmods.moofluids.entity.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Axis;
 import com.portingdeadmods.moofluids.FluidUtils;
-import com.portingdeadmods.moofluids.MooFluids;
 import com.portingdeadmods.moofluids.entity.FluidCow;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.CowRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.client.renderer.entity.LivingEntityRenderer;
-import net.minecraft.client.renderer.entity.layers.RenderLayer;
-import net.minecraft.core.Direction;
-import net.minecraft.util.FastColor;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.animal.Cow;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.fml.common.EventBusSubscriber;
-
-import static com.portingdeadmods.moofluids.MooFluids.MODID;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.player.PlayerModelPart;
 
 public class RenderFluidCow extends CowRenderer {
 
@@ -34,6 +26,7 @@ public class RenderFluidCow extends CowRenderer {
     public void render(Cow cow, float yaw, float partialTicks, PoseStack poseStack, MultiBufferSource buffer, int packedLight) {
         FluidCow fCow = (FluidCow) cow;
         int color = FluidUtils.getFluidColor(fCow.getFluid());
+        super.render(cow, yaw ,partialTicks, poseStack, buffer, packedLight);
         renderWithColor(cow, yaw, partialTicks, poseStack, buffer, packedLight, color);
     }
 

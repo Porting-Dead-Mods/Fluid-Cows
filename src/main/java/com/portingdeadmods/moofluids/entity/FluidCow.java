@@ -2,10 +2,8 @@ package com.portingdeadmods.moofluids.entity;
 
 import com.google.common.collect.ImmutableList;
 import com.portingdeadmods.moofluids.MFConfig;
-import com.portingdeadmods.moofluids.MooFluids;
 import com.portingdeadmods.moofluids.Utils;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -17,7 +15,10 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.AgeableMob;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.Animal;
@@ -132,12 +133,6 @@ public class FluidCow extends Cow {
             }
         }
         return InteractionResult.FAIL;
-    }
-
-    @Nullable
-    @Override
-    public Component getCustomName() {
-        return this.getFluid() == null ? FluidStack.EMPTY.getHoverName() : this.getFluidStack().getHoverName();
     }
 
     public boolean canBeMilked() {

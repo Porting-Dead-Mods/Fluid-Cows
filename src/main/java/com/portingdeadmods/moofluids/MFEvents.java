@@ -10,7 +10,6 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.SpawnPlacementTypes;
-import net.minecraft.world.entity.SpawnPlacements;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.ItemStack;
@@ -92,22 +91,13 @@ public final class MFEvents {
                         Fluid randomFluid = mooFluidEntity.getRandomFluid();
                         if (randomFluid != null) {
                             mooFluidEntity.setFluid(Utils.idFromFluid(randomFluid));
-                            return;
                         } else {
                             event.setCanceled(true);
                         }
                     } else {
                         event.setCanceled(true);
                     }
-                    printError();
                 }
-            }
-        }
-
-        private static void printError() {
-            LocalPlayer player = Minecraft.getInstance().player;
-            if (player != null) {
-                player.sendSystemMessage(Component.literal("Cannot spawn fluid cows, since all fluids are disabled for cows").withStyle(ChatFormatting.RED));
             }
         }
     }
