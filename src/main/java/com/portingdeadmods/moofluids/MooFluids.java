@@ -4,6 +4,7 @@ import com.portingdeadmods.moofluids.items.MFItems;
 import com.portingdeadmods.moofluids.compat.top.MFTOPPlugin;
 import com.portingdeadmods.moofluids.entity.MFEntities;
 import com.portingdeadmods.moofluids.MFConfig;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.common.ForgeMod;
@@ -58,10 +59,13 @@ public final class MooFluids {
         }
 
         for (Fluid fluid : ForgeRegistries.FLUIDS) {
-            String namespace = ForgeRegistries.FLUID_TYPES.get().getKey(fluid.getFluidType()).getNamespace();
-            if(!MFConfig.fluidBlacklist.contains(Utils.idFromFluid(fluid)) && !blackListedMods.contains(namespace)){
-                if (fluid.getBucket() != ItemStack.EMPTY.getItem()) {
-                    Utils.add(fluid);
+            ResourceLocation key = ForgeRegistries.FLUID_TYPES.get().getKey(fluid.getFluidType());
+            if (key != null) {
+                String namespace = key.getNamespace();
+                if (!MFConfig.fluidBlacklist.contains(Utils.idFromFluid(fluid)) && !blackListedMods.contains(namespace)) {
+                    if (fluid.getBucket() != ItemStack.EMPTY.getItem()) {
+                        Utils.add(fluid);
+                    }
                 }
             }
         }
