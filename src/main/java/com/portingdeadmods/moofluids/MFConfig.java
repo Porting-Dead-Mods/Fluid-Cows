@@ -25,6 +25,10 @@ public final class MFConfig {
             .comment("The number of ticks before you can milk a fluid cow agan")
             .defineInRange("defaultMilkingCooldown", 3600, 0, Integer.MAX_VALUE);
 
+    private static final ModConfigSpec.BooleanValue NATURAL_SPAWNING = BUILDER
+            .comment("Whether fluid cows should spawn naturally")
+            .define("naturalSpawning", true);
+
     public static final ModConfigSpec.ConfigValue<List<? extends String>> SPAWN_BLACKLIST = BUILDER
             .comment("A list of modid:fluid to blacklist from spawning.")
             .comment("Can also use modid:* to disable all fluids from a mod.")
@@ -32,11 +36,13 @@ public final class MFConfig {
 
 
     static final ModConfigSpec SPEC = BUILDER.build();
+    public static boolean naturalSpawning;
     public static int defaultMilkingCooldown;
     public static Set<String> fluidBlacklist;
 
     @SubscribeEvent
     static void onLoad(final ModConfigEvent event) {
+        naturalSpawning = NATURAL_SPAWNING.get();
         defaultMilkingCooldown = DEFAULT_MILKING_COOLDOWN.get();
         fluidBlacklist = new HashSet<>(SPAWN_BLACKLIST.get());
     }
