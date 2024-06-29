@@ -108,6 +108,7 @@ public class FluidCow extends Cow {
     @NotNull
     @ParametersAreNonnullByDefault
     public InteractionResult mobInteract(Player player, InteractionHand hand) {
+        boolean canGetMilk = this.getDelay() > 0 && MFConfig.milkCow;
         if (!this.level().isClientSide) {
             if (this.canBeMilked()
                     && this.getFluid() != Fluids.EMPTY
@@ -127,8 +128,12 @@ public class FluidCow extends Cow {
                     this.setCanBeMilked(false);
                 }
                 return InteractionResult.SUCCESS;
-            } else {
+            } else if(player.getItemInHand(hand).getItem() == Items.WHEAT){
                 return super.mobInteract(player, hand);
+            }else if(MFConfig.milkCow){
+                return super.mobInteract(player, hand);
+            }else{
+                return InteractionResult.FAIL;
             }
         }
         return InteractionResult.FAIL;

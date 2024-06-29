@@ -31,17 +31,23 @@ public final class MFConfig {
             .comment("Can also use modid:* to disable all fluids from a mod.")
             .defineListAllowEmpty("fluidBlacklist", List.of(), MFConfig::validateFluidName);
 
+    private static final ForgeConfigSpec.BooleanValue MILK_FROM_MODDED_COW = BUILDER
+            .comment("Milk can be obtained from fluids cows when on cooldown.")
+            .define("milkCow", false);
+
 
     static final ForgeConfigSpec SPEC = BUILDER.build();
     public static int defaultMilkingCooldown;
     public static boolean naturalSpawning;
     public static Set<String> fluidBlacklist;
+    public static boolean milkCow;
 
     @SubscribeEvent
     static void onLoad(final ModConfigEvent event) {
         naturalSpawning = NATURAL_SPAWNING.get();
         defaultMilkingCooldown = DEFAULT_MILKING_COOLDOWN.get();
         fluidBlacklist = new HashSet<>(SPAWN_BLACKLIST.get());
+        milkCow = MILK_FROM_MODDED_COW.get();
     }
 
     private static boolean validateFluidName(final Object obj) {

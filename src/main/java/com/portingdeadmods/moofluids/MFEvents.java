@@ -91,7 +91,7 @@ public final class MFEvents {
         private static void printError() {
             LocalPlayer player = Minecraft.getInstance().player;
             if (player != null) {
-                player.sendSystemMessage(Component.literal("Cannot spawn fluid cows, since all fluids are disabled for cows").withStyle(ChatFormatting.RED));
+                player.sendSystemMessage(Component.literal("Cannot spawn fluid cows, since all fluids are disabled.").withStyle(ChatFormatting.RED));
             }
         }
     }

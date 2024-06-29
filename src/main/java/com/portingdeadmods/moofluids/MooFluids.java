@@ -1,9 +1,8 @@
 package com.portingdeadmods.moofluids;
 
-import com.portingdeadmods.moofluids.items.MFItems;
 import com.portingdeadmods.moofluids.compat.top.MFTOPPlugin;
 import com.portingdeadmods.moofluids.entity.MFEntities;
-import com.portingdeadmods.moofluids.MFConfig;
+import com.portingdeadmods.moofluids.items.MFItems;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.Fluid;

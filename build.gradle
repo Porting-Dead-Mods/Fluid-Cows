@@ -71,7 +71,8 @@ repositories {
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 
-
+    runtimeOnly fg.deobf("curse.maven:industrial-foregoing-266515:5474059")
+    runtimeOnly fg.deobf("curse.maven:titanium-287342:5468426")
     implementation(fg.deobf("curse.maven:the-one-probe-245211:5159287"))
 }
 
