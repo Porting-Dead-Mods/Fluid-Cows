@@ -4,5 +4,6 @@
   "top.entity.moofluids": "Fluid Cow",
   "moofluids.top.ready":"Can be Milked",
   "entity.moofluids.fluid_cow": "Fluid Cow",
-  "item.moofluids.fluid_cow_spawn_egg": "Fluid Cow Spawn Egg"
+  "item.moofluids.fluid_cow_spawn_egg": "Fluid Cow Spawn Egg",
+  "config.jade.plugin_moofluids.fluid_cow": "Moofluids JadePlugin ?"
 }

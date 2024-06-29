@@ -1,20 +1,17 @@
 package com.portingdeadmods.moofluids.compat.jade;
 
+import com.portingdeadmods.moofluids.entity.FluidCow;
 import snownee.jade.api.IWailaClientRegistration;
 import snownee.jade.api.IWailaCommonRegistration;
 import snownee.jade.api.IWailaPlugin;
 import snownee.jade.api.WailaPlugin;
 
-@WailaPlugin
+@WailaPlugin("moofluids")
 public class MFJadeProvider implements IWailaPlugin {
-
-    @Override
-    public void register(IWailaCommonRegistration registration) {
-        //TODO register data providers
-    }
+    static IWailaClientRegistration client;
 
     @Override
     public void registerClient(IWailaClientRegistration registration) {
-        //TODO register component providers, icon providers, callbacks, and config options here
+        registration.registerEntityComponent(MFJadePlugin.INSTANCE, FluidCow.class);
     }
 }
