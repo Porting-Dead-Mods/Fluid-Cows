@@ -19,7 +19,7 @@ public enum MFJadePlugin implements IEntityComponentProvider{
         Entity entity = entityAccessor.getEntity();
         if (entity instanceof FluidCow fluidCow){
             boolean canBeMilk = fluidCow.canBeMilked();
-            iTooltip.add(Component.literal("Fluid: ").append(fluidCow.getFluid().getFluidType().toString()));
+            iTooltip.add(Component.literal("Fluid: ").append(Component.translatable(fluidCow.getFluid().getFluidType().getDescriptionId())));
             if(canBeMilk){
                 iTooltip.add(Component.literal("Can be Milked"));
             }else{

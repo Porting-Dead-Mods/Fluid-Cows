@@ -23,7 +23,7 @@ public final class MFTopProvider implements IProbeInfoEntityProvider {
             boolean canBeMilk = fluidCow.canBeMilked();
             iProbeInfo.horizontal().text(Component.translatable("moofluids.top.fluid")
                     .append(": ")
-                    .append(Component.literal(fluidType.toString())
+                    .append(Component.translatable(fluidType.getDescriptionId())
                             .withStyle(ChatFormatting.AQUA)));
             if (canBeMilk) {
                 iProbeInfo.horizontal().text(Component.translatable("moofluids.top.ready"));
