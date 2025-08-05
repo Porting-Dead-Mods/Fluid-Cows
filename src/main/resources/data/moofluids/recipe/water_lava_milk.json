@@ -4,5 +4,6 @@
     "minecraft:water",
     "minecraft:lava"
   ],
+  "success_chance": 0.5,
   "output": "minecraft:milk"
 }

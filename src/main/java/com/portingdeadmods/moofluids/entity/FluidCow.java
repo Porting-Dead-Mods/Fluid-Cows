@@ -95,7 +95,14 @@ public class FluidCow extends Cow {
             var alloyRecipe = recipeManager.getRecipeFor(MFRecipes.ALLOY_TYPE.get(), input, worldIn);
             
             if (alloyRecipe.isPresent()) {
-                fluidCow.setFluid(Utils.idFromFluid(alloyRecipe.get().value().output()));
+                var rnd = RandomSource.create();
+                float successChance = alloyRecipe.get().value().successChance();
+                if (rnd.nextFloat() < successChance) {
+                    fluidCow.setFluid(Utils.idFromFluid(alloyRecipe.get().value().output()));
+                } else {
+                    int rndVal = Mth.nextInt(rnd, 0, 1);
+                    fluidCow.setFluid(Utils.idFromFluid(rndVal == 0 ? parentFluid1 : parentFluid2));
+                }
             } else {
                 var rnd = RandomSource.create();
                 int rndVal = Mth.nextInt(rnd, 0, 1);

@@ -10,6 +10,7 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import java.util.ArrayList;
 
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
@@ -20,7 +21,7 @@ import net.minecraft.world.level.material.Fluid;
 import java.util.Comparator;
 import java.util.List;
 
-public record AlloyRecipe(List<Fluid> inputs, Fluid output) implements Recipe<AlloyRecipeInput> {
+public record AlloyRecipe(List<Fluid> inputs, Fluid output, float successChance) implements Recipe<AlloyRecipeInput> {
 
     @Override
     public boolean matches(AlloyRecipeInput input, Level level) {
@@ -66,7 +67,8 @@ public record AlloyRecipe(List<Fluid> inputs, Fluid output) implements Recipe<Al
         public static final MapCodec<AlloyRecipe> CODEC = RecordCodecBuilder.mapCodec(instance -> 
             instance.group(
                 BuiltInRegistries.FLUID.byNameCodec().listOf().fieldOf("inputs").forGetter(AlloyRecipe::inputs),
-                BuiltInRegistries.FLUID.byNameCodec().fieldOf("output").forGetter(AlloyRecipe::output)
+                BuiltInRegistries.FLUID.byNameCodec().fieldOf("output").forGetter(AlloyRecipe::output),
+                ExtraCodecs.POSITIVE_FLOAT.optionalFieldOf("success_chance", 1.0f).forGetter(AlloyRecipe::successChance)
             ).apply(instance, AlloyRecipe::new)
         );
 
@@ -75,6 +77,8 @@ public record AlloyRecipe(List<Fluid> inputs, Fluid output) implements Recipe<Al
             AlloyRecipe::inputs,
             ByteBufCodecs.registry(Registries.FLUID),
             AlloyRecipe::output,
+            ByteBufCodecs.FLOAT,
+            AlloyRecipe::successChance,
             AlloyRecipe::new
         );
 
