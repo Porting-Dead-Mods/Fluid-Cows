@@ -23,7 +23,7 @@ import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
-import net.neoforged.neoforge.event.entity.SpawnPlacementRegisterEvent;
+import net.neoforged.neoforge.event.entity.RegisterSpawnPlacementsEvent;
 
 
 import java.util.ArrayList;
@@ -43,10 +43,10 @@ public final class MFEvents {
         }
 
         @SubscribeEvent
-        public static void registerSpawnPlacement(SpawnPlacementRegisterEvent event) {
+        public static void registerSpawnPlacement(RegisterSpawnPlacementsEvent event) {
             if (MFConfig.naturalSpawning) {
                 event.register(MFEntities.FLUID_COW.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
-                        Animal::checkAnimalSpawnRules, SpawnPlacementRegisterEvent.Operation.REPLACE);
+                        Animal::checkAnimalSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
             }
         }
 
