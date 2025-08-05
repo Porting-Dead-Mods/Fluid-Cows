@@ -3,6 +3,9 @@ package com.portingdeadmods.moofluids.entity;
 import com.google.common.collect.ImmutableList;
 import com.portingdeadmods.moofluids.MFConfig;
 import com.portingdeadmods.moofluids.Utils;
+import com.portingdeadmods.moofluids.recipe.AlloyRecipe;
+import com.portingdeadmods.moofluids.recipe.AlloyRecipeInput;
+import com.portingdeadmods.moofluids.recipe.MFRecipes;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -30,6 +33,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
+import java.util.List;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.fluids.FluidUtil;
@@ -82,10 +86,22 @@ public class FluidCow extends Cow {
 
     @Override
     public void finalizeSpawnChildFromBreeding(ServerLevel worldIn, Animal animal, @org.jetbrains.annotations.Nullable AgeableMob newMob) {
-        var rnd = RandomSource.create();
-        int rndVal = Mth.nextInt(rnd, 0, 1);
         if (!worldIn.isClientSide() && newMob instanceof FluidCow fluidCow && animal instanceof FluidCow fluidCowParent) {
-            fluidCow.setFluid(Utils.idFromFluid(rndVal == 0 ? getFluid() : fluidCowParent.getFluid()));
+            Fluid parentFluid1 = this.getFluid();
+            Fluid parentFluid2 = fluidCowParent.getFluid();
+            
+            AlloyRecipeInput input = new AlloyRecipeInput(List.of(parentFluid1, parentFluid2));
+            var recipeManager = worldIn.getRecipeManager();
+            var alloyRecipe = recipeManager.getRecipeFor(MFRecipes.ALLOY_TYPE.get(), input, worldIn);
+            
+            if (alloyRecipe.isPresent()) {
+                fluidCow.setFluid(Utils.idFromFluid(alloyRecipe.get().value().output()));
+            } else {
+                var rnd = RandomSource.create();
+                int rndVal = Mth.nextInt(rnd, 0, 1);
+                fluidCow.setFluid(Utils.idFromFluid(rndVal == 0 ? parentFluid1 : parentFluid2));
+            }
+            
             if (this.getDelay() < 0) {
                 fluidCow.getEntityData().set(CAN_BE_MILKED, false);
             }
@@ -101,7 +117,7 @@ public class FluidCow extends Cow {
             this.decreaseDelay();
         } else {
             this.setCanBeMilked(true);
-            this.setDelay(1000);
+            this.setDelay(MFConfig.defaultMilkingCooldown);
         }
     }
 
@@ -128,8 +144,13 @@ public class FluidCow extends Cow {
                     this.setCanBeMilked(false);
                 }
                 return InteractionResult.SUCCESS;
-            } else {
+            } else if (player.getItemInHand(hand).getItem() == Items.WHEAT) {
                 return super.mobInteract(player, hand);
+            } else if (MFConfig.milkCow && hand == InteractionHand.MAIN_HAND 
+                       && player.getItemInHand(hand).getItem() == Items.BUCKET) {
+                return super.mobInteract(player, hand);
+            } else {
+                return InteractionResult.FAIL;
             }
         }
         return InteractionResult.FAIL;
@@ -153,7 +174,8 @@ public class FluidCow extends Cow {
         if (this.entityData.get(FLUID_NAME).equals(BuiltInRegistries.FLUID.getKey(Fluids.EMPTY).toString()))
             return Fluids.EMPTY;
 
-        return Utils.get(this.entityData.get(FLUID_NAME));
+        Fluid fluid = Utils.get(this.entityData.get(FLUID_NAME));
+        return fluid != null ? fluid : Fluids.EMPTY;
     }
 
     public FluidStack getFluidStack() {
@@ -185,10 +207,10 @@ public class FluidCow extends Cow {
     public void addAdditionalSaveData(@NotNull CompoundTag compound) {
         super.addAdditionalSaveData(compound);
         compound.putInt(TAG_DELAY, this.getDelay());
-        if (BuiltInRegistries.FLUID.containsValue(this.getFluid())) {
-            compound.putString(TAG_FLUID, BuiltInRegistries.FLUID.getKey(Fluids.EMPTY).toString());
-        } else {
+        if (this.getFluid() != Fluids.EMPTY && BuiltInRegistries.FLUID.containsValue(this.getFluid())) {
             compound.putString(TAG_FLUID, BuiltInRegistries.FLUID.getKey(this.getFluid()).toString());
+        } else {
+            compound.putString(TAG_FLUID, BuiltInRegistries.FLUID.getKey(Fluids.EMPTY).toString());
         }
     }
 

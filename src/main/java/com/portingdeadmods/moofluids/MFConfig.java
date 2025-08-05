@@ -29,6 +29,10 @@ public final class MFConfig {
             .comment("Whether fluid cows should spawn naturally")
             .define("naturalSpawning", true);
 
+    private static final ModConfigSpec.BooleanValue MILK_FROM_MODDED_COW = BUILDER
+            .comment("Milk can be obtained from fluids cows when on cooldown.")
+            .define("milkCow", false);
+
     public static final ModConfigSpec.ConfigValue<List<? extends String>> SPAWN_BLACKLIST = BUILDER
             .comment("A list of modid:fluid to blacklist from spawning.")
             .comment("Can also use modid:* to disable all fluids from a mod.")
@@ -38,12 +42,14 @@ public final class MFConfig {
     static final ModConfigSpec SPEC = BUILDER.build();
     public static boolean naturalSpawning;
     public static int defaultMilkingCooldown;
+    public static boolean milkCow;
     public static Set<String> fluidBlacklist;
 
     @SubscribeEvent
     static void onLoad(final ModConfigEvent event) {
         naturalSpawning = NATURAL_SPAWNING.get();
         defaultMilkingCooldown = DEFAULT_MILKING_COOLDOWN.get();
+        milkCow = MILK_FROM_MODDED_COW.get();
         fluidBlacklist = new HashSet<>(SPAWN_BLACKLIST.get());
     }
 

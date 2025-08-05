@@ -1,0 +1,8 @@
+{
+  "type": "moofluids:alloy",
+  "inputs": [
+    "minecraft:water",
+    "minecraft:lava"
+  ],
+  "output": "minecraft:milk"
+}

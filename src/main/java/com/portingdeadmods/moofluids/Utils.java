@@ -1,15 +1,15 @@
 package com.portingdeadmods.moofluids;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 public final class Utils {
-    private static final List<Fluid> FLUIDS = Lists.newArrayList();
+    private static final Set<Fluid> FLUIDS = new HashSet<>();
 
     public static void add(Fluid fluid) {
         if (exists(fluid)) return;
@@ -19,7 +19,7 @@ public final class Utils {
     }
 
     public static boolean exists(Fluid fluid) {
-        return FLUIDS.stream().anyMatch(fluidIn -> fluid == fluidIn);
+        return FLUIDS.contains(fluid);
     }
 
     public static Fluid get(String registryName) {

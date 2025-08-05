@@ -1,7 +1,9 @@
 package com.portingdeadmods.moofluids;
 
+import com.portingdeadmods.moofluids.compat.top.MFTOPPlugin;
 import com.portingdeadmods.moofluids.entity.MFEntities;
 import com.portingdeadmods.moofluids.items.MFItems;
+import com.portingdeadmods.moofluids.recipe.MFRecipes;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.ModList;
@@ -23,9 +25,11 @@ public final class MooFluids {
 
         MFItems.ITEMS.register(modEventbus);
         MFEntities.ENTITIES.register(modEventbus);
+        MFRecipes.RECIPE_TYPES.register(modEventbus);
+        MFRecipes.RECIPE_SERIALIZERS.register(modEventbus);
         
         if (ModList.get().isLoaded("theoneprobe")) {
-            //MFTOPPlugin.registerCompatibility();
+            MFTOPPlugin.registerCompatibility();
         }
 
         modContainer.registerConfig(ModConfig.Type.COMMON, MFConfig.SPEC);

@@ -34,13 +34,21 @@ public final class MFCommands {
     private static int dumpAllExistingFluids(CommandSourceStack source) {
         List<ResourceLocation> fluids = BuiltInRegistries.FLUID.stream()
                 .map(BuiltInRegistries.FLUID::getKey).toList();
-        source.getPlayer().sendSystemMessage(Component.literal("Existing Fluids: "+fluids));
+        if (source.getPlayer() != null) {
+            source.getPlayer().sendSystemMessage(Component.literal("Existing Fluids: "+fluids));
+        } else {
+            source.sendSystemMessage(Component.literal("Existing Fluids: "+fluids));
+        }
         return 1;
     }
 
     private static int dumpAllCowFluids(CommandSourceStack source) {
         List<ResourceLocation> fluids = Utils.getFluids().stream().map(BuiltInRegistries.FLUID::getKey).toList();
-        source.getPlayer().sendSystemMessage(Component.literal("Cow fluids: "+fluids));
+        if (source.getPlayer() != null) {
+            source.getPlayer().sendSystemMessage(Component.literal("Cow fluids: "+fluids));
+        } else {
+            source.sendSystemMessage(Component.literal("Cow fluids: "+fluids));
+        }
         return 1;
     }
 }
