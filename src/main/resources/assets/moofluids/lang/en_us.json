@@ -3,5 +3,6 @@
   "moofluids.top.cooldown": "Milking Cooldown",
   "moofluids.top.ready": "Ready to milk",
   "item.moofluids.fluid_cow_spawn_egg": "Fluid Cow Spawn Egg",
-  "entity.moofluids.fluid_cow": "Fluid Cow"
+  "entity.moofluids.fluid_cow": "Fluid Cow",
+  "jei.moofluids.category.breeding": "Fluid Cow Breeding"
 }
