@@ -7,6 +7,9 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -17,10 +20,11 @@ import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
+import org.jetbrains.annotations.NotNull;
+
+import javax.annotation.Nullable;
 
 public class FluidCowJarBlockEntity extends BlockEntity {
-
-    protected static final int FLUID_CAPACITY = 32000;
     private static final int UPDATE_INTERVAL = 20;
     private static final String TAG_FLUID_COW_FLUID = "FluidCowFluid";
     private static final String TAG_HAS_COW = "HasCow";
@@ -29,7 +33,7 @@ public class FluidCowJarBlockEntity extends BlockEntity {
     private static final String TAG_MILKING_COOLDOWN = "MilkingCooldown";
     private static final String TAG_CAN_BE_MILKED = "CanBeMilked";
 
-    protected final FluidTank fluidTank = new FluidTank(FLUID_CAPACITY) {
+    protected final FluidTank fluidTank = new FluidTank(MFConfig.COW_JAR_CAPACITY.getAsInt()) {
         @Override
         protected void onContentsChanged() {
             FluidCowJarBlockEntity.this.setChanged();
@@ -105,11 +109,15 @@ public class FluidCowJarBlockEntity extends BlockEntity {
         canBeMilked = tag.getBoolean(TAG_CAN_BE_MILKED);
     }
 
+    @Nullable
     @Override
-    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
-        CompoundTag tag = super.getUpdateTag(registries);
-        saveAdditional(tag, registries);
-        return tag;
+    public Packet<ClientGamePacketListener> getUpdatePacket() {
+        return ClientboundBlockEntityDataPacket.create(this);
+    }
+
+    @Override
+    public @NotNull CompoundTag getUpdateTag(HolderLookup.Provider provider) {
+        return saveWithoutMetadata(provider);
     }
 
     public static void serverTick(Level level, BlockPos pos, BlockState state, FluidCowJarBlockEntity blockEntity) {
@@ -117,7 +125,7 @@ public class FluidCowJarBlockEntity extends BlockEntity {
     }
 
     public void serverTick(Level level, BlockPos pos, BlockState state) {
-        if (hasCow && cowFluid != Fluids.EMPTY && fluidTank.getFluidAmount() < FLUID_CAPACITY) {
+        if (hasCow && cowFluid != Fluids.EMPTY && fluidTank.getFluidAmount() < MFConfig.COW_JAR_CAPACITY.getAsInt()) {
             FluidStack toAdd = new FluidStack(cowFluid, 1);
             int filled = fluidTank.fill(toAdd, IFluidHandler.FluidAction.EXECUTE);
             

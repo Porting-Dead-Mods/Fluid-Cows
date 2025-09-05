@@ -36,8 +36,11 @@ public final class MFConfig {
     public static final ModConfigSpec.ConfigValue<List<? extends String>> SPAWN_BLACKLIST = BUILDER
             .comment("A list of modid:fluid to blacklist from spawning.")
             .comment("Can also use modid:* to disable all fluids from a mod.")
-            .defineListAllowEmpty("fluidBlacklist", List.of(), MFConfig::validateFluidName);
+            .defineListAllowEmpty("fluidBlacklist", List.of(), () -> "", MFConfig::validateFluidName);
 
+    public static final ModConfigSpec.IntValue COW_JAR_CAPACITY = BUILDER
+            .comment("The amount of fluid the cow jar can hold")
+            .defineInRange("cow_jar_capacity", 32_000, 0, Integer.MAX_VALUE);
 
     static final ModConfigSpec SPEC = BUILDER.build();
     public static boolean naturalSpawning;

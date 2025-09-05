@@ -8,7 +8,6 @@ import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 
 @EventBusSubscriber(modid = MooFluids.MODID, bus = EventBusSubscriber.Bus.MOD)
 public class FluidCowJarCapabilityProvider {
-
     @SubscribeEvent
     public static void registerCapabilities(RegisterCapabilitiesEvent event) {
         event.registerBlockEntity(
