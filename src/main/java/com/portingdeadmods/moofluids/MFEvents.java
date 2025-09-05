@@ -1,5 +1,9 @@
 package com.portingdeadmods.moofluids;
 
+import com.portingdeadmods.moofluids.block.MFBlocks;
+import com.portingdeadmods.moofluids.block.entity.FluidCowJarBlockEntity;
+import com.portingdeadmods.moofluids.block.entity.MFBlockEntities;
+import com.portingdeadmods.moofluids.block.renderer.FluidCowJarRenderer;
 import com.portingdeadmods.moofluids.entity.FluidCow;
 import com.portingdeadmods.moofluids.entity.MFEntities;
 import com.portingdeadmods.moofluids.entity.renderer.RenderFluidCow;
@@ -36,6 +40,7 @@ public final class MFEvents {
         @SubscribeEvent
         public static void onRegisterEntityRenderer(EntityRenderersEvent.RegisterRenderers event) {
             event.registerEntityRenderer(MFEntities.FLUID_COW.get(), RenderFluidCow::new);
+            event.registerBlockEntityRenderer(MFBlockEntities.FLUID_COW_JAR.get(), FluidCowJarRenderer::new);
         }
 
         @SubscribeEvent
@@ -67,8 +72,12 @@ public final class MFEvents {
 
         @SubscribeEvent
         public static void addItemToCreativeTab(BuildCreativeModeTabContentsEvent event) {
-            if (event.getTabKey() == CreativeModeTabs.SPAWN_EGGS)
+            if (event.getTabKey() == CreativeModeTabs.SPAWN_EGGS) {
                 event.accept(MFItems.FLUID_COW_SPAWN_EGG);
+            }
+            if (event.getTabKey() == CreativeModeTabs.FUNCTIONAL_BLOCKS) {
+                event.accept(MFBlocks.FLUID_COW_JAR.get());
+            }
         }
 
     }

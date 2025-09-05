@@ -1,0 +1,19 @@
+{
+	"variants": {
+		"facing=north": {
+			"model": "moofluids:block/fluid_cow_jar"
+		},
+		"facing=south": {
+			"model": "moofluids:block/fluid_cow_jar",
+			"y": 180
+		},
+		"facing=west": {
+			"model": "moofluids:block/fluid_cow_jar",
+			"y": 270
+		},
+		"facing=east": {
+			"model": "moofluids:block/fluid_cow_jar",
+			"y": 90
+		}
+	}
+}

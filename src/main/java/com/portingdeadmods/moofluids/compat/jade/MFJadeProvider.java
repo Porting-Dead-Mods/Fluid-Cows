@@ -1,5 +1,6 @@
 package com.portingdeadmods.moofluids.compat.jade;
 
+import com.portingdeadmods.moofluids.block.FluidCowJarBlock;
 import com.portingdeadmods.moofluids.entity.FluidCow;
 import snownee.jade.api.IWailaClientRegistration;
 import snownee.jade.api.IWailaPlugin;
@@ -12,5 +13,6 @@ public class MFJadeProvider implements IWailaPlugin {
     @Override
     public void registerClient(IWailaClientRegistration registration) {
         registration.registerEntityComponent(MFJadePlugin.INSTANCE, FluidCow.class);
+        registration.registerBlockComponent(FluidCowJarJadePlugin.INSTANCE, FluidCowJarBlock.class);
     }
 }

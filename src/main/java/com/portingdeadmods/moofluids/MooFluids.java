@@ -1,5 +1,7 @@
 package com.portingdeadmods.moofluids;
 
+import com.portingdeadmods.moofluids.block.MFBlocks;
+import com.portingdeadmods.moofluids.block.entity.MFBlockEntities;
 import com.portingdeadmods.moofluids.compat.top.MFTOPPlugin;
 import com.portingdeadmods.moofluids.entity.MFEntities;
 import com.portingdeadmods.moofluids.items.MFItems;
@@ -24,6 +26,9 @@ public final class MooFluids {
         NeoForgeMod.enableMilkFluid();
 
         MFItems.ITEMS.register(modEventbus);
+        MFBlocks.BLOCKS.register(modEventbus);
+        MFBlocks.BLOCK_ITEMS.register(modEventbus);
+        MFBlockEntities.BLOCK_ENTITIES.register(modEventbus);
         MFEntities.ENTITIES.register(modEventbus);
         MFRecipes.RECIPE_TYPES.register(modEventbus);
         MFRecipes.RECIPE_SERIALIZERS.register(modEventbus);

@@ -7,5 +7,6 @@ public final class MFTOPPlugin {
     public static void registerCompatibility() {
         ITheOneProbe oneProbe = TheOneProbe.theOneProbeImp;
         oneProbe.registerEntityProvider(new MFTopProvider());
+        oneProbe.registerProvider(new FluidCowJarTopProvider());
     }
 }

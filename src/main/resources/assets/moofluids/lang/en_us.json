@@ -4,5 +4,7 @@
   "moofluids.top.ready": "Ready to milk",
   "item.moofluids.fluid_cow_spawn_egg": "Fluid Cow Spawn Egg",
   "entity.moofluids.fluid_cow": "Fluid Cow",
+  "block.moofluids.fluid_cow_jar": "Fluid Cow Jar",
+  "block.moofluids.fluid_cow_jar_filled": "Fluid Cow Jar (Filled)",
   "jei.moofluids.category.breeding": "Fluid Cow Breeding"
 }
