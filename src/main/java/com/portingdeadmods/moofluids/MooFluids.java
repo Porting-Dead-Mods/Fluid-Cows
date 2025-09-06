@@ -4,6 +4,7 @@ import com.portingdeadmods.moofluids.block.MFBlocks;
 import com.portingdeadmods.moofluids.block.entity.MFBlockEntities;
 import com.portingdeadmods.moofluids.compat.top.MFTOPPlugin;
 import com.portingdeadmods.moofluids.entity.MFEntities;
+import com.portingdeadmods.moofluids.items.FluidCowJarBlockItem;
 import com.portingdeadmods.moofluids.items.MFItems;
 import com.portingdeadmods.moofluids.recipe.MFRecipes;
 import net.neoforged.bus.api.IEventBus;
@@ -26,6 +27,7 @@ public final class MooFluids {
         NeoForgeMod.enableMilkFluid();
 
         MFItems.ITEMS.register(modEventbus);
+        FluidCowJarBlockItem.DATA_COMPONENTS.register(modEventbus);
         MFBlocks.BLOCKS.register(modEventbus);
         MFBlocks.BLOCK_ITEMS.register(modEventbus);
         MFBlockEntities.BLOCK_ENTITIES.register(modEventbus);

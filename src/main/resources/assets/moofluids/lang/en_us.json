@@ -6,5 +6,8 @@
   "entity.moofluids.fluid_cow": "Fluid Cow",
   "block.moofluids.fluid_cow_jar": "Fluid Cow Jar",
   "block.moofluids.fluid_cow_jar_filled": "Fluid Cow Jar (Filled)",
-  "jei.moofluids.category.breeding": "Fluid Cow Breeding"
+  "jei.moofluids.category.breeding": "Fluid Cow Breeding",
+  "tooltip.moofluids.fluid_cow_jar.contains": "Contains: %s",
+  "tooltip.moofluids.fluid_cow_jar.fluid": "Fluid: %s",
+  "tooltip.moofluids.fluid_cow_jar.amount": "Amount: %s mB"
 }

@@ -4,11 +4,14 @@ import com.mojang.serialization.MapCodec;
 import com.portingdeadmods.moofluids.block.entity.FluidCowJarBlockEntity;
 import com.portingdeadmods.moofluids.block.entity.MFBlockEntities;
 import com.portingdeadmods.moofluids.entity.FluidCow;
+import com.portingdeadmods.moofluids.items.FluidCowJarBlockItem;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -27,7 +30,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
-import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.level.storage.loot.LootParams;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -38,6 +42,7 @@ import net.neoforged.neoforge.fluids.FluidUtil;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collections;
 import java.util.List;
 
 public class FluidCowJarBlock extends BaseEntityBlock {
@@ -52,6 +57,33 @@ public class FluidCowJarBlock extends BaseEntityBlock {
 
     public FluidCowJarBlock(Properties properties) {
         super(properties.sound(SoundType.GLASS).strength(0.6f));
+    }
+
+    @Override
+    public List<ItemStack> getDrops(BlockState state, LootParams.Builder params) {
+        BlockEntity blockEntity = params.getOptionalParameter(LootContextParams.BLOCK_ENTITY);
+        if (blockEntity instanceof FluidCowJarBlockEntity fluidCowJar) {
+            ItemStack itemStack = new ItemStack(this);
+            CompoundTag data = new CompoundTag();
+            fluidCowJar.saveAdditional(data, fluidCowJar.getLevel().registryAccess());
+            if (!data.isEmpty()) {
+                itemStack.set(FluidCowJarBlockItem.COW_JAR_DATA.get(), data);
+            }
+            return Collections.singletonList(itemStack);
+        }
+        return super.getDrops(state, params);
+    }
+
+    @Override
+    public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
+        super.setPlacedBy(level, pos, state, placer, stack);
+        CompoundTag data = stack.get(FluidCowJarBlockItem.COW_JAR_DATA.get());
+        if (data != null && !data.isEmpty()) {
+            BlockEntity blockEntity = level.getBlockEntity(pos);
+            if (blockEntity instanceof FluidCowJarBlockEntity fluidCowJar) {
+                fluidCowJar.loadAdditional(data, level.registryAccess());
+            }
+        }
     }
 
     @Override
