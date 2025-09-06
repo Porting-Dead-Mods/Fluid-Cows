@@ -54,8 +54,8 @@ public class FluidCowJarBlockItem extends BlockItem {
             }
 
             CompoundTag fluidTag = blockEntityData.getCompound("FluidTank");
-            if (!fluidTag.isEmpty()) {
-                FluidStack fluidStack = FluidStack.parse(context.registries(), fluidTag).orElse(FluidStack.EMPTY);
+            if (!fluidTag.isEmpty() && fluidTag.contains("fluid")) {
+                FluidStack fluidStack = FluidStack.parse(context.registries(), fluidTag.getCompound("fluid")).orElse(FluidStack.EMPTY);
                 if (!fluidStack.isEmpty()) {
                     int color = IClientFluidTypeExtensions.of(fluidStack.getFluid()).getTintColor(fluidStack);
                     tooltip.add(Component.translatable("tooltip.moofluids.fluid_cow_jar.fluid", fluidStack.getDisplayName().copy().setStyle(Style.EMPTY.withColor(color))));

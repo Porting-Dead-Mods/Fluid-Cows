@@ -4,6 +4,7 @@ import com.portingdeadmods.moofluids.block.MFBlocks;
 import com.portingdeadmods.moofluids.block.entity.MFBlockEntities;
 import com.portingdeadmods.moofluids.compat.top.MFTOPPlugin;
 import com.portingdeadmods.moofluids.entity.MFEntities;
+import com.portingdeadmods.moofluids.items.FluidCowJarBEWLR;
 import com.portingdeadmods.moofluids.items.FluidCowJarBlockItem;
 import com.portingdeadmods.moofluids.items.MFItems;
 import com.portingdeadmods.moofluids.recipe.MFRecipes;
