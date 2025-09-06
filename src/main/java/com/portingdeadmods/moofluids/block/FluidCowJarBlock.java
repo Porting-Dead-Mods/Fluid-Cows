@@ -31,6 +31,7 @@ import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidUtil;
@@ -43,8 +44,11 @@ public class FluidCowJarBlock extends BaseEntityBlock {
 
     public static final MapCodec<FluidCowJarBlock> CODEC = simpleCodec(FluidCowJarBlock::new);
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
-    
-    private static final VoxelShape SHAPE = Block.box(4.8, 0, 4.8, 11.2, 8.0, 11.2);
+
+    public static final VoxelShape SHAPE = Shapes.or(
+            Block.box(4, 0, 4, 12, 10, 12),  // main jar
+            Block.box(5, 10, 5, 11, 12, 11)  // lid/top part
+    );
 
     public FluidCowJarBlock(Properties properties) {
         super(properties.sound(SoundType.GLASS).strength(0.6f));
