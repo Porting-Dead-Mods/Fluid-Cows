@@ -14,6 +14,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
@@ -27,8 +28,11 @@ import net.neoforged.neoforge.fluids.FluidStack;
 
 public class FluidCowJarBEWLR extends BlockEntityWithoutLevelRenderer {
     private static final ResourceLocation COW_TEXTURE = ResourceLocation.withDefaultNamespace("textures/entity/cow/cow.png");
+    private static final ResourceLocation JAR_TEXTURE = ResourceLocation.fromNamespaceAndPath("moofluids", "textures/block/jar.png");
     private CowModel<FluidCow> cowModel;
     private FluidCow dummyCow;
+    private BakedModel itemModel;
+
 
     public FluidCowJarBEWLR() {
         super(Minecraft.getInstance().getBlockEntityRenderDispatcher(), Minecraft.getInstance().getEntityModels());
@@ -36,37 +40,156 @@ public class FluidCowJarBEWLR extends BlockEntityWithoutLevelRenderer {
 
     @Override
     public void renderByItem(ItemStack stack, ItemDisplayContext displayContext, PoseStack poseStack, MultiBufferSource buffer, int packedLight, int packedOverlay) {
+        // Lazy-init models
         if (this.cowModel == null) {
             this.cowModel = new CowModel<>(Minecraft.getInstance().getEntityModels().bakeLayer(ModelLayers.COW));
             this.dummyCow = new FluidCow(MFEntities.FLUID_COW.get(), Minecraft.getInstance().level);
         }
 
-        CompoundTag blockEntityData = stack.get(FluidCowJarBlockItem.COW_JAR_DATA.get());
-        if (blockEntityData == null || blockEntityData.isEmpty()) {
-            return;
-        }
+        poseStack.pushPose();
+        // Apply the correct perspective transform manually
+        applyDisplayTransforms(poseStack, displayContext);
 
-        if (blockEntityData.getBoolean("HasCow")) {
-            String fluidName = blockEntityData.getString("FluidCowFluid");
-            if (!fluidName.isEmpty()) {
-                ResourceLocation fluidRl = ResourceLocation.tryParse(fluidName);
-                if (fluidRl != null) {
-                    Fluid fluid = BuiltInRegistries.FLUID.get(fluidRl);
-                    if (fluid != Fluids.EMPTY) {
-                        renderCow(new FluidStack(fluid, 1), poseStack, buffer, packedLight, packedOverlay);
+        // Render the jar manually
+        renderJar(poseStack, buffer, packedLight, packedOverlay);
+
+        // Render contents
+        CompoundTag blockEntityData = stack.get(FluidCowJarBlockItem.COW_JAR_DATA.get());
+        if (blockEntityData != null && !blockEntityData.isEmpty()) {
+            if (blockEntityData.getBoolean("HasCow")) {
+                String fluidName = blockEntityData.getString("FluidCowFluid");
+                if (!fluidName.isEmpty()) {
+                    ResourceLocation fluidRl = ResourceLocation.tryParse(fluidName);
+                    if (fluidRl != null) {
+                        Fluid fluid = BuiltInRegistries.FLUID.get(fluidRl);
+                        if (fluid != Fluids.EMPTY) {
+                            renderCow(new FluidStack(fluid, 1), poseStack, buffer, packedLight, packedOverlay);
+                        }
                     }
                 }
             }
-        }
 
-        CompoundTag fluidTag = blockEntityData.getCompound("FluidTank");
-        if (!fluidTag.isEmpty() && fluidTag.contains("fluid")) {
-            FluidStack fluidStack = FluidStack.parse(Minecraft.getInstance().level.registryAccess(), fluidTag.getCompound("fluid")).orElse(FluidStack.EMPTY);
-            if (!fluidStack.isEmpty()) {
-                float height = (0.5625F / MFConfig.COW_JAR_CAPACITY.getAsInt()) * fluidStack.getAmount();
-                renderFluid(fluidStack, height, poseStack, buffer, packedLight);
+            CompoundTag fluidTag = blockEntityData.getCompound("FluidTank");
+            if (!fluidTag.isEmpty() && fluidTag.contains("fluid")) {
+                FluidStack fluidStack = FluidStack.parse(Minecraft.getInstance().level.registryAccess(), fluidTag.getCompound("fluid")).orElse(FluidStack.EMPTY);
+                if (!fluidStack.isEmpty()) {
+                    float height = (0.5625F / MFConfig.COW_JAR_CAPACITY.getAsInt()) * fluidStack.getAmount();
+                    renderFluid(fluidStack, height, poseStack, buffer, packedLight);
+                }
             }
         }
+        poseStack.popPose();
+    }
+
+    private void applyDisplayTransforms(PoseStack poseStack, ItemDisplayContext displayContext) {
+        poseStack.translate(0.5, 0.5, 0.5);
+        switch (displayContext) {
+            case GUI:
+                poseStack.mulPose(Axis.XP.rotationDegrees(30));
+                poseStack.mulPose(Axis.YP.rotationDegrees(225));
+                poseStack.scale(0.625f, 0.625f, 0.625f);
+                break;
+            case THIRD_PERSON_RIGHT_HAND:
+            case THIRD_PERSON_LEFT_HAND:
+                poseStack.translate(0, 2.5 / 16.0, 0);
+                poseStack.mulPose(Axis.XP.rotationDegrees(75));
+                poseStack.mulPose(Axis.YP.rotationDegrees(45));
+                poseStack.scale(0.375f, 0.375f, 0.375f);
+                break;
+            case FIRST_PERSON_RIGHT_HAND:
+                poseStack.mulPose(Axis.YP.rotationDegrees(45));
+                poseStack.scale(0.4f, 0.4f, 0.4f);
+                break;
+            case FIRST_PERSON_LEFT_HAND:
+                poseStack.mulPose(Axis.YP.rotationDegrees(225));
+                poseStack.scale(0.4f, 0.4f, 0.4f);
+                break;
+            case GROUND:
+                poseStack.translate(0, 3.0 / 16.0, 0);
+                poseStack.scale(0.25f, 0.25f, 0.25f);
+                break;
+            case FIXED:
+                poseStack.scale(0.5f, 0.5f, 0.5f);
+                break;
+            default:
+                break;
+        }
+        poseStack.translate(-0.5, -0.5, -0.5);
+    }
+
+    private void renderJar(PoseStack poseStack, MultiBufferSource buffer, int packedLight, int packedOverlay) {
+        VertexConsumer consumer = buffer.getBuffer(RenderType.entityCutout(JAR_TEXTURE));
+
+        // Main Body
+        float x1 = 4 / 16f, y1 = 0 / 16f, z1 = 4 / 16f;
+        float x2 = 12 / 16f, y2 = 10 / 16f, z2 = 12 / 16f;
+        // North
+        addVertex(consumer, poseStack, x1, y1, z1, 0, 10/16f, packedLight, packedOverlay);
+        addVertex(consumer, poseStack, x1, y2, z1, 0, 0, packedLight, packedOverlay);
+        addVertex(consumer, poseStack, x2, y2, z1, 8/16f, 0, packedLight, packedOverlay);
+        addVertex(consumer, poseStack, x2, y1, z1, 8/16f, 10/16f, packedLight, packedOverlay);
+        // East
+        addVertex(consumer, poseStack, x2, y1, z1, 0, 10/16f, packedLight, packedOverlay);
+        addVertex(consumer, poseStack, x2, y2, z1, 0, 0, packedLight, packedOverlay);
+        addVertex(consumer, poseStack, x2, y2, z2, 8/16f, 0, packedLight, packedOverlay);
+        addVertex(consumer, poseStack, x2, y1, z2, 8/16f, 10/16f, packedLight, packedOverlay);
+        // South
+        addVertex(consumer, poseStack, x2, y1, z2, 0, 10/16f, packedLight, packedOverlay);
+        addVertex(consumer, poseStack, x2, y2, z2, 0, 0, packedLight, packedOverlay);
+        addVertex(consumer, poseStack, x1, y2, z2, 8/16f, 0, packedLight, packedOverlay);
+        addVertex(consumer, poseStack, x1, y1, z2, 8/16f, 10/16f, packedLight, packedOverlay);
+        // West
+        addVertex(consumer, poseStack, x1, y1, z2, 0, 10/16f, packedLight, packedOverlay);
+        addVertex(consumer, poseStack, x1, y2, z2, 0, 0, packedLight, packedOverlay);
+        addVertex(consumer, poseStack, x1, y2, z1, 8/16f, 0, packedLight, packedOverlay);
+        addVertex(consumer, poseStack, x1, y1, z1, 8/16f, 10/16f, packedLight, packedOverlay);
+        // Up
+        addVertex(consumer, poseStack, x1, y2, z1, 8/16f, 0, packedLight, packedOverlay);
+        addVertex(consumer, poseStack, x1, y2, z2, 8/16f, 8/16f, packedLight, packedOverlay);
+        addVertex(consumer, poseStack, x2, y2, z2, 16/16f, 8/16f, packedLight, packedOverlay);
+        addVertex(consumer, poseStack, x2, y2, z1, 16/16f, 0, packedLight, packedOverlay);
+        // Down
+        addVertex(consumer, poseStack, x1, y1, z2, 8/16f, 0, packedLight, packedOverlay);
+        addVertex(consumer, poseStack, x1, y1, z1, 8/16f, 8/16f, packedLight, packedOverlay);
+        addVertex(consumer, poseStack, x2, y1, z1, 16/16f, 8/16f, packedLight, packedOverlay);
+        addVertex(consumer, poseStack, x2, y1, z2, 16/16f, 0, packedLight, packedOverlay);
+
+        // Lid
+        x1 = 5 / 16f; y1 = 10 / 16f; z1 = 5 / 16f;
+        x2 = 11 / 16f; y2 = 12 / 16f; z2 = 11 / 16f;
+        // North
+        addVertex(consumer, poseStack, x1, y1, z1, 9/16f, 10/16f, packedLight, packedOverlay);
+        addVertex(consumer, poseStack, x1, y2, z1, 9/16f, 8/16f, packedLight, packedOverlay);
+        addVertex(consumer, poseStack, x2, y2, z1, 15/16f, 8/16f, packedLight, packedOverlay);
+        addVertex(consumer, poseStack, x2, y1, z1, 15/16f, 10/16f, packedLight, packedOverlay);
+        // East
+        addVertex(consumer, poseStack, x2, y1, z1, 15/16f, 10/16f, packedLight, packedOverlay);
+        addVertex(consumer, poseStack, x2, y2, z1, 15/16f, 8/16f, packedLight, packedOverlay);
+        addVertex(consumer, poseStack, x2, y2, z2, 9/16f, 8/16f, packedLight, packedOverlay);
+        addVertex(consumer, poseStack, x2, y1, z2, 9/16f, 10/16f, packedLight, packedOverlay);
+        // South
+        addVertex(consumer, poseStack, x2, y1, z2, 9/16f, 10/16f, packedLight, packedOverlay);
+        addVertex(consumer, poseStack, x2, y2, z2, 9/16f, 8/16f, packedLight, packedOverlay);
+        addVertex(consumer, poseStack, x1, y2, z2, 15/16f, 8/16f, packedLight, packedOverlay);
+        addVertex(consumer, poseStack, x1, y1, z2, 15/16f, 10/16f, packedLight, packedOverlay);
+        // West
+        addVertex(consumer, poseStack, x1, y1, z2, 15/16f, 10/16f, packedLight, packedOverlay);
+        addVertex(consumer, poseStack, x1, y2, z2, 15/16f, 8/16f, packedLight, packedOverlay);
+        addVertex(consumer, poseStack, x1, y2, z1, 9/16f, 8/16f, packedLight, packedOverlay);
+        addVertex(consumer, poseStack, x1, y1, z1, 9/16f, 10/16f, packedLight, packedOverlay);
+        // Up
+        addVertex(consumer, poseStack, x1, y2, z1, 9/16f, 10/16f, packedLight, packedOverlay);
+        addVertex(consumer, poseStack, x1, y2, z2, 9/16f, 16/16f, packedLight, packedOverlay);
+        addVertex(consumer, poseStack, x2, y2, z2, 15/16f, 16/16f, packedLight, packedOverlay);
+        addVertex(consumer, poseStack, x2, y2, z1, 15/16f, 10/16f, packedLight, packedOverlay);
+    }
+
+    private void addVertex(VertexConsumer consumer, PoseStack pose, float x, float y, float z, float u, float v, int packedLight, int packedOverlay) {
+        int lightU = packedLight & '\uffff';
+        int lightV = packedLight >> 16 & '\uffff';
+        int overlayU = packedOverlay & '\uffff';
+        int overlayV = packedOverlay >> 16 & '\uffff';
+        consumer.addVertex(pose.last().pose(), x, y, z).setColor(1f, 1f, 1f, 1f).setUv(u, v).setUv1(overlayU, overlayV).setUv2(lightU, lightV).setNormal(0, 1, 0);
     }
 
     private void renderCow(FluidStack fluid, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
