@@ -4,15 +4,10 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import com.portingdeadmods.moofluids.MFConfig;
-import com.portingdeadmods.moofluids.entity.FluidCow;
-import com.portingdeadmods.moofluids.entity.MFEntities;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.model.CowModel;
-import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -27,12 +22,8 @@ import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtension
 import net.neoforged.neoforge.fluids.FluidStack;
 
 public class FluidCowJarBEWLR extends BlockEntityWithoutLevelRenderer {
-    private static final ResourceLocation COW_TEXTURE = ResourceLocation.withDefaultNamespace("textures/entity/cow/cow.png");
     private static final ResourceLocation JAR_TEXTURE = ResourceLocation.fromNamespaceAndPath("moofluids", "textures/block/jar.png");
-    private CowModel<FluidCow> cowModel;
-    private FluidCow dummyCow;
     private BakedModel itemModel;
-
 
     public FluidCowJarBEWLR() {
         super(Minecraft.getInstance().getBlockEntityRenderDispatcher(), Minecraft.getInstance().getEntityModels());
@@ -40,22 +31,20 @@ public class FluidCowJarBEWLR extends BlockEntityWithoutLevelRenderer {
 
     @Override
     public void renderByItem(ItemStack stack, ItemDisplayContext displayContext, PoseStack poseStack, MultiBufferSource buffer, int packedLight, int packedOverlay) {
-        // Lazy-init models
-        if (this.cowModel == null) {
-            this.cowModel = new CowModel<>(Minecraft.getInstance().getEntityModels().bakeLayer(ModelLayers.COW));
-            this.dummyCow = new FluidCow(MFEntities.FLUID_COW.get(), Minecraft.getInstance().level);
+        if (this.itemModel == null) {
+            this.itemModel = Minecraft.getInstance().getItemRenderer().getItemModelShaper().getItemModel(stack);
         }
 
+        int fullbright = 15728880;
+
         poseStack.pushPose();
-        // Apply the correct perspective transform manually
         applyDisplayTransforms(poseStack, displayContext);
 
-        // Render the jar manually
-        renderJar(poseStack, buffer, packedLight, packedOverlay);
+        renderJar(poseStack, buffer, fullbright, packedOverlay);
 
-        // Render contents
         CompoundTag blockEntityData = stack.get(FluidCowJarBlockItem.COW_JAR_DATA.get());
         if (blockEntityData != null && !blockEntityData.isEmpty()) {
+            float maxHeight = 0.5625F - 0.002F; // A little shorter to avoid z-fighting
             if (blockEntityData.getBoolean("HasCow")) {
                 String fluidName = blockEntityData.getString("FluidCowFluid");
                 if (!fluidName.isEmpty()) {
@@ -63,18 +52,18 @@ public class FluidCowJarBEWLR extends BlockEntityWithoutLevelRenderer {
                     if (fluidRl != null) {
                         Fluid fluid = BuiltInRegistries.FLUID.get(fluidRl);
                         if (fluid != Fluids.EMPTY) {
-                            renderCow(new FluidStack(fluid, 1), poseStack, buffer, packedLight, packedOverlay);
+                            renderFluid(new FluidStack(fluid, 1), maxHeight, poseStack, buffer, fullbright);
                         }
                     }
                 }
-            }
-
-            CompoundTag fluidTag = blockEntityData.getCompound("FluidTank");
-            if (!fluidTag.isEmpty() && fluidTag.contains("fluid")) {
-                FluidStack fluidStack = FluidStack.parse(Minecraft.getInstance().level.registryAccess(), fluidTag.getCompound("fluid")).orElse(FluidStack.EMPTY);
-                if (!fluidStack.isEmpty()) {
-                    float height = (0.5625F / MFConfig.COW_JAR_CAPACITY.getAsInt()) * fluidStack.getAmount();
-                    renderFluid(fluidStack, height, poseStack, buffer, packedLight);
+            } else {
+                CompoundTag fluidTag = blockEntityData.getCompound("FluidTank");
+                if (!fluidTag.isEmpty() && fluidTag.contains("fluid")) {
+                    FluidStack fluidStack = FluidStack.parse(Minecraft.getInstance().level.registryAccess(), fluidTag.getCompound("fluid")).orElse(FluidStack.EMPTY);
+                    if (!fluidStack.isEmpty()) {
+                        float height = (maxHeight / MFConfig.COW_JAR_CAPACITY.getAsInt()) * fluidStack.getAmount();
+                        renderFluid(fluidStack, height, poseStack, buffer, fullbright);
+                    }
                 }
             }
         }
@@ -192,25 +181,6 @@ public class FluidCowJarBEWLR extends BlockEntityWithoutLevelRenderer {
         consumer.addVertex(pose.last().pose(), x, y, z).setColor(1f, 1f, 1f, 1f).setUv(u, v).setUv1(overlayU, overlayV).setUv2(lightU, lightV).setNormal(0, 1, 0);
     }
 
-    private void renderCow(FluidStack fluid, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
-        poseStack.pushPose();
-        poseStack.translate(0.5, 0.1625, 0.5);
-        float scale = 0.25f;
-        poseStack.scale(scale, scale, scale);
-        poseStack.mulPose(Axis.YP.rotationDegrees((Minecraft.getInstance().level.getGameTime()) * 0.5f));
-        poseStack.mulPose(Axis.XP.rotationDegrees(180.0f));
-        poseStack.translate(0, -1.25, 0);
-
-        int color = IClientFluidTypeExtensions.of(fluid.getFluid()).getTintColor(fluid);
-        cowModel.young = false;
-        cowModel.prepareMobModel(dummyCow, 0, 0, 0);
-        cowModel.setupAnim(dummyCow, 0, 0, Minecraft.getInstance().level.getGameTime(), 0, 0);
-
-        VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.entitySolid(COW_TEXTURE));
-        cowModel.renderToBuffer(poseStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY, color);
-        poseStack.popPose();
-    }
-
     private void renderFluid(FluidStack fluidStack, float height, PoseStack matrixStack, MultiBufferSource bufferIn, int combinedLight) {
         var fluidExtensions = IClientFluidTypeExtensions.of(fluidStack.getFluid());
         TextureAtlasSprite fluidStillSprite = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(fluidExtensions.getStillTexture());
@@ -218,7 +188,8 @@ public class FluidCowJarBEWLR extends BlockEntityWithoutLevelRenderer {
         int fluidColor = fluidExtensions.getTintColor();
 
         matrixStack.pushPose();
-        float xMax = 0.75F, zMax = 0.75F, xMin = 0.25F, zMin = 0.25F, yMin = 0.0625F;
+        float inset = 0.001F;
+        float xMax = 0.75F - inset, zMax = 0.75F - inset, xMin = 0.25F + inset, zMin = 0.25F + inset, yMin = 0.0625F + inset;
         float alpha = 1F;
         float red = (fluidColor >> 16 & 0xFF) / 255.0F;
         float green = (fluidColor >> 8 & 0xFF) / 255.0F;

@@ -25,7 +25,8 @@ public class MFBlocks {
             () -> new FluidCowJarBlock(BlockBehaviour.Properties.of()
                     .sound(SoundType.GLASS)
                     .strength(0.6f)
-                    .noOcclusion()),
+                    .noOcclusion()
+                    .lightLevel(state -> 15)),
             FluidCowJarBlockItem::new);
 
     private static <T extends Block> DeferredHolder<Block, T> registerBlock(String name, Supplier<T> block) {
