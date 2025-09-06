@@ -1,7 +1,6 @@
 package com.portingdeadmods.moofluids.items;
 
 import com.portingdeadmods.moofluids.MooFluids;
-import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.world.item.Item;
 import net.neoforged.neoforge.common.DeferredSpawnEggItem;
 import net.neoforged.neoforge.registries.DeferredItem;

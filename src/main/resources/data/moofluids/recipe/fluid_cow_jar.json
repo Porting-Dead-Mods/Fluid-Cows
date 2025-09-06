@@ -3,15 +3,18 @@
   "category": "misc",
   "pattern": [
     " I ",
-    "G G",
+    "GCG",
     "GGG"
   ],
   "key": {
     "I": {
-      "item": "minecraft:iron_nugget"
+      "item": "minecraft:oak_slab"
     },
     "G": {
       "item": "minecraft:glass"
+    },
+    "C": {
+      "item": "minecraft:bucket"
     }
   },
   "result": {

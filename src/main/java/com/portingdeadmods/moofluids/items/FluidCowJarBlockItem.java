@@ -1,11 +1,11 @@
 package com.portingdeadmods.moofluids.items;
 
 import com.portingdeadmods.moofluids.MooFluids;
-import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.BlockItem;
@@ -15,13 +15,12 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
-import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
+import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class FluidCowJarBlockItem extends BlockItem {
@@ -46,7 +45,9 @@ public class FluidCowJarBlockItem extends BlockItem {
                     if (fluidRl != null) {
                         Fluid fluid = BuiltInRegistries.FLUID.get(fluidRl);
                         if (fluid != Fluids.EMPTY) {
-                            tooltip.add(Component.translatable("tooltip.moofluids.fluid_cow_jar.contains", new FluidStack(fluid, 1).getDisplayName()));
+                            FluidStack fluidStack = new FluidStack(fluid, 1);
+                            int color = IClientFluidTypeExtensions.of(fluid).getTintColor(fluidStack);
+                            tooltip.add(Component.translatable("tooltip.moofluids.fluid_cow_jar.contains", fluidStack.getDisplayName().copy().setStyle(Style.EMPTY.withColor(color))));
                         }
                     }
                 }
@@ -56,20 +57,11 @@ public class FluidCowJarBlockItem extends BlockItem {
             if (!fluidTag.isEmpty()) {
                 FluidStack fluidStack = FluidStack.parse(context.registries(), fluidTag).orElse(FluidStack.EMPTY);
                 if (!fluidStack.isEmpty()) {
-                    tooltip.add(Component.translatable("tooltip.moofluids.fluid_cow_jar.fluid", fluidStack.getDisplayName()));
+                    int color = IClientFluidTypeExtensions.of(fluidStack.getFluid()).getTintColor(fluidStack);
+                    tooltip.add(Component.translatable("tooltip.moofluids.fluid_cow_jar.fluid", fluidStack.getDisplayName().copy().setStyle(Style.EMPTY.withColor(color))));
                     tooltip.add(Component.translatable("tooltip.moofluids.fluid_cow_jar.amount", fluidStack.getAmount()));
                 }
             }
         }
-    }
-
-    @Override
-    public void initializeClient(Consumer<IClientItemExtensions> consumer) {
-        consumer.accept(new IClientItemExtensions() {
-            @Override
-            public BlockEntityWithoutLevelRenderer getCustomRenderer() {
-                return new FluidCowJarBEWLR();
-            }
-        });
     }
 }
