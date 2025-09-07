@@ -4,6 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import com.portingdeadmods.moofluids.ColorUtils;
+import com.portingdeadmods.moofluids.FluidUtils;
 import com.portingdeadmods.moofluids.MooFluids;
 import com.portingdeadmods.moofluids.entity.FluidCow;
 import com.portingdeadmods.moofluids.entity.MFEntities;
@@ -22,6 +23,7 @@ import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.Items;
@@ -99,10 +101,11 @@ public class FluidCowBreedingCategory extends AbstractRecipeCategory<FluidCowBre
         return mouseX >= cowX - halfWidth && mouseX <= cowX + halfWidth &&
                mouseY >= cowY - height && mouseY <= cowY;
     }
-    
+
     private void addFluidTooltip(ITooltipBuilder tooltip, Fluid fluid) {
         FluidStack fluidStack = new FluidStack(fluid, FluidType.BUCKET_VOLUME);
-        Component fluidName = fluidStack.getHoverName();
+        int color = FluidUtils.getFluidColor(fluid);
+        Component fluidName = fluidStack.getHoverName().copy().setStyle(Style.EMPTY.withColor(color));
         tooltip.add(fluidName);
     }
 

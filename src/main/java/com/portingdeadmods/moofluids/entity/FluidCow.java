@@ -12,6 +12,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
@@ -33,6 +35,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.level.storage.loot.LootTable;
+import java.util.ArrayList;
 import java.util.List;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
@@ -73,7 +77,7 @@ public class FluidCow extends Cow {
     @Override
     public SpawnGroupData finalizeSpawn(ServerLevelAccessor pLevel, DifficultyInstance pDifficulty, MobSpawnType pSpawnType, @Nullable SpawnGroupData pSpawnGroupData) {
         if (!pLevel.isClientSide()) {
-            Fluid randomFluid = getRandomFluid();
+            Fluid randomFluid = getRandomFluidForDimension(pLevel);
             if (randomFluid != null) {
                 this.setFluid(Utils.idFromFluid(randomFluid));
                 if (this.getDelay() < 0) {
@@ -85,15 +89,20 @@ public class FluidCow extends Cow {
     }
 
     @Override
+    public ResourceKey<LootTable> getDefaultLootTable() {
+        return EntityType.COW.getDefaultLootTable();
+    }
+
+    @Override
     public void finalizeSpawnChildFromBreeding(ServerLevel worldIn, Animal animal, @org.jetbrains.annotations.Nullable AgeableMob newMob) {
         if (!worldIn.isClientSide() && newMob instanceof FluidCow fluidCow && animal instanceof FluidCow fluidCowParent) {
             Fluid parentFluid1 = this.getFluid();
             Fluid parentFluid2 = fluidCowParent.getFluid();
-            
+
             AlloyRecipeInput input = new AlloyRecipeInput(List.of(parentFluid1, parentFluid2));
             var recipeManager = worldIn.getRecipeManager();
             var alloyRecipe = recipeManager.getRecipeFor(MFRecipes.ALLOY_TYPE.get(), input, worldIn);
-            
+
             if (alloyRecipe.isPresent()) {
                 var rnd = RandomSource.create();
                 float successChance = alloyRecipe.get().value().successChance();
@@ -108,7 +117,7 @@ public class FluidCow extends Cow {
                 int rndVal = Mth.nextInt(rnd, 0, 1);
                 fluidCow.setFluid(Utils.idFromFluid(rndVal == 0 ? parentFluid1 : parentFluid2));
             }
-            
+
             if (this.getDelay() < 0) {
                 fluidCow.getEntityData().set(CAN_BE_MILKED, false);
             }
@@ -153,8 +162,8 @@ public class FluidCow extends Cow {
                 return InteractionResult.SUCCESS;
             } else if (player.getItemInHand(hand).getItem() == Items.WHEAT) {
                 return super.mobInteract(player, hand);
-            } else if (MFConfig.milkCow && hand == InteractionHand.MAIN_HAND 
-                       && player.getItemInHand(hand).getItem() == Items.BUCKET) {
+            } else if (MFConfig.milkCow && hand == InteractionHand.MAIN_HAND
+                    && player.getItemInHand(hand).getItem() == Items.BUCKET) {
                 return super.mobInteract(player, hand);
             } else {
                 return InteractionResult.FAIL;
@@ -199,6 +208,37 @@ public class FluidCow extends Cow {
 
     public void decreaseDelay() {
         this.setDelay(this.getDelay() - 1);
+    }
+
+    public @Nullable Fluid getRandomFluidForDimension(ServerLevelAccessor levelAccessor) {
+        if (!(levelAccessor instanceof ServerLevel serverLevel)) {
+            return getRandomFluid();
+        }
+
+        ResourceKey<Level> currentDimension = serverLevel.dimension();
+        String currentDimensionId = currentDimension.location().toString();
+
+        List<Fluid> availableFluids = new ArrayList<>();
+        ImmutableList<Fluid> allFluids = Utils.getFluids();
+
+        for (Fluid fluid : allFluids) {
+            String fluidId = BuiltInRegistries.FLUID.getKey(fluid).toString();
+
+            if (MFConfig.dimensionSpawnRestrictions.containsKey(fluidId)) {
+                String allowedDimension = MFConfig.dimensionSpawnRestrictions.get(fluidId);
+                if (allowedDimension.equals(currentDimensionId)) {
+                    availableFluids.add(fluid);
+                }
+            } else {
+                availableFluids.add(fluid);
+            }
+        }
+
+        if (availableFluids.isEmpty()) return null;
+
+        var rnd = RandomSource.create();
+        int rndVal = Mth.nextInt(rnd, 0, availableFluids.size() - 1);
+        return availableFluids.get(rndVal);
     }
 
     public @Nullable Fluid getRandomFluid() {

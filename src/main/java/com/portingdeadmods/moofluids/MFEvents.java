@@ -8,11 +8,18 @@ import com.portingdeadmods.moofluids.entity.FluidCow;
 import com.portingdeadmods.moofluids.entity.MFEntities;
 import com.portingdeadmods.moofluids.entity.renderer.RenderFluidCow;
 import com.portingdeadmods.moofluids.items.MFItems;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.SpawnPlacementTypes;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
@@ -24,7 +31,6 @@ import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.RegisterSpawnPlacementsEvent;
-
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,7 +53,7 @@ public final class MFEvents {
         public static void registerSpawnPlacement(RegisterSpawnPlacementsEvent event) {
             if (MFConfig.naturalSpawning) {
                 event.register(MFEntities.FLUID_COW.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
-                        Animal::checkAnimalSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
+                        MFEvents::checkFluidCowSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
             }
         }
 
@@ -96,7 +102,7 @@ public final class MFEvents {
                             return;
                         }
 
-                        Fluid randomFluid = mooFluidEntity.getRandomFluid();
+                        Fluid randomFluid = mooFluidEntity.getRandomFluidForDimension((ServerLevelAccessor) event.getLevel());
                         if (randomFluid != null) {
                             mooFluidEntity.setFluid(Utils.idFromFluid(randomFluid));
                         } else {
@@ -108,5 +114,36 @@ public final class MFEvents {
                 }
             }
         }
+    }
+
+    public static boolean checkFluidCowSpawnRules(EntityType<? extends Animal> entityType, ServerLevelAccessor level, MobSpawnType spawnType, BlockPos pos, RandomSource random) {
+        if (!Animal.checkAnimalSpawnRules(entityType, level, spawnType, pos, random)) {
+            return false;
+        }
+
+        if (!MFConfig.dimensionSpawnRestrictions.isEmpty()) {
+            ResourceKey<Level> currentDimension = level.getLevel().dimension();
+            String currentDimensionId = currentDimension.location().toString();
+
+            boolean hasAnyAllowedFluid = false;
+            for (Fluid fluid : Utils.getFluids()) {
+                String fluidId = BuiltInRegistries.FLUID.getKey(fluid).toString();
+
+                if (MFConfig.dimensionSpawnRestrictions.containsKey(fluidId)) {
+                    String allowedDimension = MFConfig.dimensionSpawnRestrictions.get(fluidId);
+                    if (allowedDimension.equals(currentDimensionId)) {
+                        hasAnyAllowedFluid = true;
+                        break;
+                    }
+                } else {
+                    hasAnyAllowedFluid = true;
+                    break;
+                }
+            }
+
+            return hasAnyAllowedFluid;
+        }
+
+        return true;
     }
 }

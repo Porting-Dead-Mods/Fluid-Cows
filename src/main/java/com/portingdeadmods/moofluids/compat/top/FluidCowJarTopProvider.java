@@ -1,10 +1,12 @@
 package com.portingdeadmods.moofluids.compat.top;
 
+import com.portingdeadmods.moofluids.FluidUtils;
 import com.portingdeadmods.moofluids.MooFluids;
 import com.portingdeadmods.moofluids.block.entity.FluidCowJarBlockEntity;
 import mcjty.theoneprobe.api.*;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -24,17 +26,18 @@ public final class FluidCowJarTopProvider implements IProbeInfoProvider {
         if (level.getBlockEntity(data.getPos()) instanceof FluidCowJarBlockEntity fluidCowJar) {
             if (fluidCowJar.hasCow()) {
                 if (fluidCowJar.getCowFluid() != Fluids.EMPTY) {
+                    int color = FluidUtils.getFluidColor(fluidCowJar.getCowFluid());
                     FluidType fluidType = fluidCowJar.getCowFluid().getFluidType();
                     probeInfo.horizontal()
                             .text(Component.translatable("moofluids.top.fluid")
                                     .append(": ")
                                     .append(Component.translatable(fluidType.getDescriptionId())
-                                            .withStyle(ChatFormatting.AQUA)));
+                                            .withStyle(Style.EMPTY.withColor(color))));
                 }
 
                 int fluidAmount = fluidCowJar.getFluidTank().getFluidAmount();
                 int capacity = fluidCowJar.getFluidTank().getCapacity();
-                
+
                 probeInfo.horizontal()
                         .text(Component.literal("Fluid: ")
                                 .append(Component.literal(fluidAmount + " / " + capacity + " mB")

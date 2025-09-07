@@ -1,5 +1,6 @@
 package com.portingdeadmods.moofluids.items;
 
+import com.portingdeadmods.moofluids.FluidUtils;
 import com.portingdeadmods.moofluids.MooFluids;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -46,7 +47,7 @@ public class FluidCowJarBlockItem extends BlockItem {
                         Fluid fluid = BuiltInRegistries.FLUID.get(fluidRl);
                         if (fluid != Fluids.EMPTY) {
                             FluidStack fluidStack = new FluidStack(fluid, 1);
-                            int color = IClientFluidTypeExtensions.of(fluid).getTintColor(fluidStack);
+                            int color = FluidUtils.getFluidColor(fluid);
                             tooltip.add(Component.translatable("tooltip.moofluids.fluid_cow_jar.contains", fluidStack.getDisplayName().copy().setStyle(Style.EMPTY.withColor(color))));
                         }
                     }
@@ -57,7 +58,7 @@ public class FluidCowJarBlockItem extends BlockItem {
             if (!fluidTag.isEmpty() && fluidTag.contains("fluid")) {
                 FluidStack fluidStack = FluidStack.parse(context.registries(), fluidTag.getCompound("fluid")).orElse(FluidStack.EMPTY);
                 if (!fluidStack.isEmpty()) {
-                    int color = IClientFluidTypeExtensions.of(fluidStack.getFluid()).getTintColor(fluidStack);
+                    int color = FluidUtils.getFluidColor(fluidStack.getFluid());
                     tooltip.add(Component.translatable("tooltip.moofluids.fluid_cow_jar.fluid", fluidStack.getDisplayName().copy().setStyle(Style.EMPTY.withColor(color))));
                     tooltip.add(Component.translatable("tooltip.moofluids.fluid_cow_jar.amount", fluidStack.getAmount()));
                 }
