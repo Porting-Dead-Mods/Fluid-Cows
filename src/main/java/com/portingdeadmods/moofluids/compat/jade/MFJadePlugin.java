@@ -1,7 +1,9 @@
 package com.portingdeadmods.moofluids.compat.jade;
 
+import com.portingdeadmods.moofluids.FluidUtils;
 import com.portingdeadmods.moofluids.entity.FluidCow;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import snownee.jade.api.*;
@@ -15,7 +17,9 @@ public enum MFJadePlugin implements IEntityComponentProvider{
         Entity entity = entityAccessor.getEntity();
         if (entity instanceof FluidCow fluidCow){
             boolean canBeMilk = fluidCow.canBeMilked();
-            iTooltip.add(Component.literal("Fluid: ").append(Component.translatable(fluidCow.getFluid().getFluidType().getDescriptionId())));
+            int color = FluidUtils.getFluidColor(fluidCow.getFluid());
+            iTooltip.add(Component.literal("Fluid: ").append(Component.translatable(fluidCow.getFluid().getFluidType().getDescriptionId())
+                    .withStyle(Style.EMPTY.withColor(color))));
             if(canBeMilk){
                 iTooltip.add(Component.literal("Can be Milked"));
             }else{

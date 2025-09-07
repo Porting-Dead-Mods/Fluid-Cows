@@ -7,22 +7,22 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.config.ModConfigEvent;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-
-// An example config class. This is not required, but it's a good idea to have one to keep your config organized.
-// Demonstrates how to use Forge's config APIs
 @EventBusSubscriber(modid = MooFluids.MODID, bus = EventBusSubscriber.Bus.MOD)
 public final class MFConfig {
     public static final Pattern FLUIDNAME_REGEX = Pattern.compile("^[a-zA-Z0-9_]+:(\\*|[a-zA-Z0-9_]+)$");
+    public static final Pattern DIMENSION_SPAWN_REGEX = Pattern.compile("^([a-zA-Z0-9_]+:[a-zA-Z0-9_]+)->([a-zA-Z0-9_]+:[a-zA-Z0-9_]+)$");
 
     private static final ModConfigSpec.Builder BUILDER = new ModConfigSpec.Builder();
     private static final ModConfigSpec.IntValue DEFAULT_MILKING_COOLDOWN = BUILDER
-            .comment("The number of ticks before you can milk a fluid cow agan")
+            .comment("The number of ticks before you can milk a fluid cow again")
             .defineInRange("defaultMilkingCooldown", 3600, 0, Integer.MAX_VALUE);
 
     private static final ModConfigSpec.BooleanValue NATURAL_SPAWNING = BUILDER
@@ -38,6 +38,14 @@ public final class MFConfig {
             .comment("Can also use modid:* to disable all fluids from a mod.")
             .defineListAllowEmpty("fluidBlacklist", List.of(), () -> "", MFConfig::validateFluidName);
 
+    public static final ModConfigSpec.ConfigValue<List<? extends String>> DIMENSION_SPAWN_RESTRICTIONS = BUILDER
+            .comment("Restrict specific fluid cows to spawn only in specific dimensions.")
+            .comment("Format: 'modid:fluid->modid:dimension'")
+            .comment("Example: 'minecraft:water->minecraft:overworld'")
+            .comment("Example: 'minecraft:lava->minecraft:the_nether'")
+            .comment("Example: 'kubejs:fluid_ender->minecraft:the_end'")
+            .defineListAllowEmpty("dimensionSpawnRestrictions", List.of(), () -> "", MFConfig::validateDimensionSpawn);
+
     public static final ModConfigSpec.IntValue COW_JAR_CAPACITY = BUILDER
             .comment("The amount of fluid the cow jar can hold")
             .defineInRange("cow_jar_capacity", 32_000, 0, Integer.MAX_VALUE);
@@ -47,6 +55,7 @@ public final class MFConfig {
     public static int defaultMilkingCooldown;
     public static boolean milkCow;
     public static Set<String> fluidBlacklist;
+    public static Map<String, String> dimensionSpawnRestrictions;
 
     @SubscribeEvent
     static void onLoad(final ModConfigEvent event) {
@@ -54,6 +63,14 @@ public final class MFConfig {
         defaultMilkingCooldown = DEFAULT_MILKING_COOLDOWN.get();
         milkCow = MILK_FROM_MODDED_COW.get();
         fluidBlacklist = new HashSet<>(SPAWN_BLACKLIST.get());
+
+        dimensionSpawnRestrictions = new HashMap<>();
+        for (String restriction : DIMENSION_SPAWN_RESTRICTIONS.get()) {
+            String[] parts = restriction.split("->");
+            if (parts.length == 2) {
+                dimensionSpawnRestrictions.put(parts[0].trim(), parts[1].trim());
+            }
+        }
     }
 
     private static boolean validateFluidName(final Object obj) {
@@ -63,6 +80,14 @@ public final class MFConfig {
             if (matcher.matches()) return true;
 
             return BuiltInRegistries.FLUID.containsKey(ResourceLocation.parse(fluidName));
+        }
+        return false;
+    }
+
+    private static boolean validateDimensionSpawn(final Object obj) {
+        if (obj instanceof final String spawnConfig) {
+            Matcher matcher = DIMENSION_SPAWN_REGEX.matcher(spawnConfig);
+            return matcher.matches();
         }
         return false;
     }
