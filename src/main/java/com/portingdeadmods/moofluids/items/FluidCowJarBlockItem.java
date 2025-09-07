@@ -1,5 +1,6 @@
 package com.portingdeadmods.moofluids.items;
 
+import com.portingdeadmods.moofluids.FluidUtils;
 import com.portingdeadmods.moofluids.MooFluids;
 import com.portingdeadmods.moofluids.data.CowJarDataComponent;
 import net.minecraft.core.component.DataComponentType;
@@ -46,13 +47,13 @@ public class FluidCowJarBlockItem extends BlockItem {
         Fluid fluid = cowJarDataComponent.fluid();
         if (fluid != Fluids.EMPTY) {
             FluidStack fluidStack = new FluidStack(fluid, 1);
-            int color = IClientFluidTypeExtensions.of(fluid).getTintColor(fluidStack);
+            int color = FluidUtils.getFluidColor(fluid);
             tooltip.add(Component.translatable("tooltip.moofluids.fluid_cow_jar.contains", fluidStack.getDisplayName().copy().setStyle(Style.EMPTY.withColor(color))));
         }
 
         FluidStack fluidStack = stack.get(FLUID_TANK).copy();
         if (!fluidStack.isEmpty()) {
-            int color = IClientFluidTypeExtensions.of(fluidStack.getFluid()).getTintColor(fluidStack);
+            int color = FluidUtils.getFluidColor(fluidStack.getFluid());
             tooltip.add(Component.translatable("tooltip.moofluids.fluid_cow_jar.fluid", fluidStack.getDisplayName().copy().setStyle(Style.EMPTY.withColor(color))));
             tooltip.add(Component.translatable("tooltip.moofluids.fluid_cow_jar.amount", fluidStack.getAmount()));
         }
