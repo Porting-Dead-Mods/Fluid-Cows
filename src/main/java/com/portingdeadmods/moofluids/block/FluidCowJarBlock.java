@@ -64,26 +64,10 @@ public class FluidCowJarBlock extends BaseEntityBlock {
         BlockEntity blockEntity = params.getOptionalParameter(LootContextParams.BLOCK_ENTITY);
         if (blockEntity instanceof FluidCowJarBlockEntity fluidCowJar) {
             ItemStack itemStack = new ItemStack(this);
-            CompoundTag data = new CompoundTag();
-            fluidCowJar.saveAdditional(data, fluidCowJar.getLevel().registryAccess());
-            if (!data.isEmpty()) {
-                itemStack.set(FluidCowJarBlockItem.COW_JAR_DATA.get(), data);
-            }
+            fluidCowJar.saveToItem(itemStack, params.getLevel().registryAccess());
             return Collections.singletonList(itemStack);
         }
         return super.getDrops(state, params);
-    }
-
-    @Override
-    public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
-        super.setPlacedBy(level, pos, state, placer, stack);
-        CompoundTag data = stack.get(FluidCowJarBlockItem.COW_JAR_DATA.get());
-        if (data != null && !data.isEmpty()) {
-            BlockEntity blockEntity = level.getBlockEntity(pos);
-            if (blockEntity instanceof FluidCowJarBlockEntity fluidCowJar) {
-                fluidCowJar.loadAdditional(data, level.registryAccess());
-            }
-        }
     }
 
     @Override

@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class VertexUtil {
+public final class VertexUtil {
 
     public static void addCube(VertexConsumer builder, PoseStack poseStack,
                                float width, float height, int light, int color) {

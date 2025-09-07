@@ -1,7 +1,9 @@
 package com.portingdeadmods.moofluids.block.entity;
 
 import com.portingdeadmods.moofluids.MFConfig;
+import com.portingdeadmods.moofluids.data.CowJarDataComponent;
 import com.portingdeadmods.moofluids.entity.FluidCow;
+import com.portingdeadmods.moofluids.items.FluidCowJarBlockItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -11,6 +13,7 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -18,6 +21,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.SimpleFluidContent;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
 import org.jetbrains.annotations.NotNull;
@@ -210,5 +214,12 @@ public class FluidCowJarBlockEntity extends BlockEntity {
 
     public int getMilkingCooldown() {
         return 0;
+    }
+
+    @Override
+    public void saveToItem(ItemStack stack, HolderLookup.Provider registries) {
+        super.saveToItem(stack, registries);
+        stack.set(FluidCowJarBlockItem.FLUID_TANK.get(), SimpleFluidContent.copyOf(this.getFluidTank().getFluid()));
+        stack.set(FluidCowJarBlockItem.COW_JAR_DATA.get(), new CowJarDataComponent(this.hasCow(), this.getCowFluid(), this.getFluidTank().getCapacity()));
     }
 }
