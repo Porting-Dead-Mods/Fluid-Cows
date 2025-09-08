@@ -2,6 +2,7 @@ package com.portingdeadmods.moofluids;
 
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.material.Fluid;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.config.ModConfigEvent;
@@ -48,14 +49,14 @@ public final class MFConfig {
 
     public static final ModConfigSpec.IntValue COW_JAR_CAPACITY = BUILDER
             .comment("The amount of fluid the cow jar can hold")
-            .defineInRange("cow_jar_capacity", 32_000, 0, Integer.MAX_VALUE);
+            .defineInRange("cowJarCapacity", 32_000, 0, Integer.MAX_VALUE);
 
     static final ModConfigSpec SPEC = BUILDER.build();
     public static boolean naturalSpawning;
     public static int defaultMilkingCooldown;
     public static boolean milkCow;
     public static Set<String> fluidBlacklist;
-    public static Map<String, String> dimensionSpawnRestrictions;
+    public static Map<ResourceLocation, ResourceLocation> dimensionSpawnRestrictions;
 
     @SubscribeEvent
     static void onLoad(final ModConfigEvent event) {
@@ -68,7 +69,7 @@ public final class MFConfig {
         for (String restriction : DIMENSION_SPAWN_RESTRICTIONS.get()) {
             String[] parts = restriction.split("->");
             if (parts.length == 2) {
-                dimensionSpawnRestrictions.put(parts[0].trim(), parts[1].trim());
+                dimensionSpawnRestrictions.put(ResourceLocation.parse(parts[0].trim()), ResourceLocation.parse(parts[1].trim()));
             }
         }
     }

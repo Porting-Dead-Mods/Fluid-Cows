@@ -1,7 +1,6 @@
 package com.portingdeadmods.moofluids;
 
 import com.portingdeadmods.moofluids.block.MFBlocks;
-import com.portingdeadmods.moofluids.block.entity.FluidCowJarBlockEntity;
 import com.portingdeadmods.moofluids.block.entity.MFBlockEntities;
 import com.portingdeadmods.moofluids.block.renderer.FluidCowJarRenderer;
 import com.portingdeadmods.moofluids.entity.FluidCow;
@@ -11,6 +10,7 @@ import com.portingdeadmods.moofluids.items.MFItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobSpawnType;
@@ -51,10 +51,7 @@ public final class MFEvents {
 
         @SubscribeEvent
         public static void registerSpawnPlacement(RegisterSpawnPlacementsEvent event) {
-            if (MFConfig.naturalSpawning) {
-                event.register(MFEntities.FLUID_COW.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
-                        MFEvents::checkFluidCowSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
-            }
+            event.register(MFEntities.FLUID_COW.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, MFEvents::checkFluidCowSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
         }
 
         @SubscribeEvent
@@ -117,20 +114,20 @@ public final class MFEvents {
     }
 
     public static boolean checkFluidCowSpawnRules(EntityType<? extends Animal> entityType, ServerLevelAccessor level, MobSpawnType spawnType, BlockPos pos, RandomSource random) {
-        if (!Animal.checkAnimalSpawnRules(entityType, level, spawnType, pos, random)) {
-            return false;
-        }
+        //if (!Animal.checkAnimalSpawnRules(entityType, level, spawnType, pos, random)) {
+        //    return false;
+        //}
 
         if (!MFConfig.dimensionSpawnRestrictions.isEmpty()) {
             ResourceKey<Level> currentDimension = level.getLevel().dimension();
-            String currentDimensionId = currentDimension.location().toString();
+            ResourceLocation currentDimensionId = currentDimension.location();
 
             boolean hasAnyAllowedFluid = false;
             for (Fluid fluid : Utils.getFluids()) {
-                String fluidId = BuiltInRegistries.FLUID.getKey(fluid).toString();
+                ResourceLocation fluidId = BuiltInRegistries.FLUID.getKey(fluid);
 
                 if (MFConfig.dimensionSpawnRestrictions.containsKey(fluidId)) {
-                    String allowedDimension = MFConfig.dimensionSpawnRestrictions.get(fluidId);
+                    ResourceLocation allowedDimension = MFConfig.dimensionSpawnRestrictions.get(fluidId);
                     if (allowedDimension.equals(currentDimensionId)) {
                         hasAnyAllowedFluid = true;
                         break;

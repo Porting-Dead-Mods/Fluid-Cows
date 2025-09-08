@@ -216,16 +216,16 @@ public class FluidCow extends Cow {
         }
 
         ResourceKey<Level> currentDimension = serverLevel.dimension();
-        String currentDimensionId = currentDimension.location().toString();
+        ResourceLocation currentDimensionId = currentDimension.location();
 
         List<Fluid> availableFluids = new ArrayList<>();
         ImmutableList<Fluid> allFluids = Utils.getFluids();
 
         for (Fluid fluid : allFluids) {
-            String fluidId = BuiltInRegistries.FLUID.getKey(fluid).toString();
+            ResourceLocation fluidId = BuiltInRegistries.FLUID.getKey(fluid);
 
             if (MFConfig.dimensionSpawnRestrictions.containsKey(fluidId)) {
-                String allowedDimension = MFConfig.dimensionSpawnRestrictions.get(fluidId);
+                ResourceLocation allowedDimension = MFConfig.dimensionSpawnRestrictions.get(fluidId);
                 if (allowedDimension.equals(currentDimensionId)) {
                     availableFluids.add(fluid);
                 }

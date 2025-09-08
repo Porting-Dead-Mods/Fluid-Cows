@@ -53,7 +53,7 @@ public final class MooFluids {
     @EventBusSubscriber(modid = MODID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
     public static class ClientSetup {
 
-        static FluidCowJarBEWLR TANK_RENDERER = new FluidCowJarBEWLR();
+        private static final FluidCowJarBEWLR TANK_RENDERER = new FluidCowJarBEWLR();
 
 
         @SubscribeEvent
