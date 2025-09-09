@@ -47,6 +47,13 @@ public final class MFConfig {
             .comment("Example: 'kubejs:fluid_ender->minecraft:the_end'")
             .defineListAllowEmpty("dimensionSpawnRestrictions", List.of(), () -> "", MFConfig::validateDimensionSpawn);
 
+    public static final ModConfigSpec.ConfigValue<List<? extends String>> BIOME_SPAWN_BLACKLIST = BUILDER
+            .comment("Blacklist specific biomes from spawning fluid cows.")
+            .comment("Format: 'modid:biome'")
+            .comment("Example: 'minecraft:deep_dark'")
+            .comment("Example: 'minecraft:mushroom_fields'")
+            .defineListAllowEmpty("biomeSpawnBlacklist", List.of("minecraft:deep_dark"), () -> "", obj -> obj instanceof String);
+
     public static final ModConfigSpec.IntValue COW_JAR_CAPACITY = BUILDER
             .comment("The amount of fluid the cow jar can hold")
             .defineInRange("cowJarCapacity", 32_000, 0, Integer.MAX_VALUE);
@@ -57,6 +64,7 @@ public final class MFConfig {
     public static boolean milkCow;
     public static Set<String> fluidBlacklist;
     public static Map<ResourceLocation, ResourceLocation> dimensionSpawnRestrictions;
+    public static Set<ResourceLocation> biomeSpawnBlacklist;
 
     @SubscribeEvent
     static void onLoad(final ModConfigEvent event) {
@@ -71,6 +79,11 @@ public final class MFConfig {
             if (parts.length == 2) {
                 dimensionSpawnRestrictions.put(ResourceLocation.parse(parts[0].trim()), ResourceLocation.parse(parts[1].trim()));
             }
+        }
+
+        biomeSpawnBlacklist = new HashSet<>();
+        for (String biome : BIOME_SPAWN_BLACKLIST.get()) {
+            biomeSpawnBlacklist.add(ResourceLocation.parse(biome));
         }
     }
 

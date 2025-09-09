@@ -1,7 +1,6 @@
 {
   "type": "neoforge:add_spawns",
-  "biomes": [
-  ],
+  "biomes": [],
   "spawners": {
     "type": "moofluids:fluid_cow",
     "weight": 8,

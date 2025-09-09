@@ -56,13 +56,21 @@ public final class Utils {
         Map<ResourceLocation, ResourceLocation> spawnRestrictions = MFConfig.dimensionSpawnRestrictions;
         for (Map.Entry<ResourceLocation, ResourceLocation> entry : spawnRestrictions.entrySet()) {
             LevelStem levelStem = server.registryAccess().registryOrThrow(Registries.LEVEL_STEM).get(entry.getValue());
-            Set<Holder<Biome>> biomes = levelStem.generator().getBiomeSource().possibleBiomes();
-
-            biomeModifiers1.add(BiomeModifiers.AddSpawnsBiomeModifier.singleSpawn(
-                    HolderSet.direct(List.copyOf(biomes)),
-                    new MobSpawnSettings.SpawnerData(MFEntities.FLUID_COW.get(), 50, 16, 32)
-            ));
+            if (levelStem != null) {
+                Set<Holder<Biome>> biomes = levelStem.generator().getBiomeSource().possibleBiomes();
+                
+                // Filter out blacklisted biomes
+                List<Holder<Biome>> filteredBiomes = biomes.stream()
+                        .filter(biomeHolder -> !MFConfig.biomeSpawnBlacklist.contains(biomeHolder.unwrapKey().get().location()))
+                        .toList();
+                
+                if (!filteredBiomes.isEmpty()) {
+                    biomeModifiers1.add(BiomeModifiers.AddSpawnsBiomeModifier.singleSpawn(
+                            HolderSet.direct(filteredBiomes),
+                            new MobSpawnSettings.SpawnerData(MFEntities.FLUID_COW.get(), 50, 16, 32)
+                    ));
+                }
+            }
         }
     }
-
 }
