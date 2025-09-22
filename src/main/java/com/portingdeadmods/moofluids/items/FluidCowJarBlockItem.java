@@ -3,13 +3,10 @@ package com.portingdeadmods.moofluids.items;
 import com.portingdeadmods.moofluids.FluidUtils;
 import com.portingdeadmods.moofluids.MooFluids;
 import com.portingdeadmods.moofluids.data.CowJarDataComponent;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponentType;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -17,7 +14,6 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
-import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.SimpleFluidContent;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -49,6 +45,8 @@ public class FluidCowJarBlockItem extends BlockItem {
             FluidStack fluidStack = new FluidStack(fluid, 1);
             int color = FluidUtils.getFluidColor(fluid);
             tooltip.add(Component.translatable("tooltip.moofluids.fluid_cow_jar.contains", fluidStack.getDisplayName().copy().setStyle(Style.EMPTY.withColor(color))));
+        } else {
+            tooltip.add(Component.translatable("tooltip.moofluids.fluid_cow_jar.hint").withStyle(ChatFormatting.GRAY));
         }
 
         FluidStack fluidStack = stack.get(FLUID_TANK).copy();

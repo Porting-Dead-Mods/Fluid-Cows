@@ -9,5 +9,6 @@
   "jei.moofluids.category.breeding": "Fluid Cow Breeding",
   "tooltip.moofluids.fluid_cow_jar.contains": "Contains: %s",
   "tooltip.moofluids.fluid_cow_jar.fluid": "Fluid: %s",
-  "tooltip.moofluids.fluid_cow_jar.amount": "Amount: %s mB"
+  "tooltip.moofluids.fluid_cow_jar.amount": "Amount: %s mB",
+  "tooltip.moofluids.fluid_cow_jar.hint": "Drop an anvil on a fluid cow to capture it"
 }
