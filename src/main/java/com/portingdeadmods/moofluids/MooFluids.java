@@ -42,6 +42,7 @@ public final class MooFluids {
         MFEntities.ENTITIES.register(modEventbus);
         MFRecipes.RECIPE_TYPES.register(modEventbus);
         MFRecipes.RECIPE_SERIALIZERS.register(modEventbus);
+        MFCreativeTabs.CREATIVE_MODE_TABS.register(modEventbus);
         
         if (ModList.get().isLoaded("theoneprobe")) {
             MFTOPPlugin.registerCompatibility();

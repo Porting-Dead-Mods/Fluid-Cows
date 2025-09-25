@@ -13,4 +13,7 @@ public final class MFItems {
 
     public static final DeferredItem<DeferredSpawnEggItem> FLUID_COW_SPAWN_EGG = ITEMS.register("fluid_cow_spawn_egg",
             () -> new DeferredSpawnEggItem(FLUID_COW, 0X36302A, 0XD4B183, new Item.Properties()));
+    
+    public static final DeferredItem<AlchemyGlass> ALCHEMY_GLASS = ITEMS.register("alchemy_glass",
+            () -> new AlchemyGlass(new Item.Properties().stacksTo(1)));
 }

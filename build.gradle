@@ -91,6 +91,7 @@ sourceSets.main.resources { srcDir 'src/generated/resources' }
 dependencies {
     implementation "curse.maven:jade-324717:6291517"
     implementation "curse.maven:jei-238222:6829086"
+    implementation 'org.joml:joml:1.10.5'
     implementation "curse.maven:the-one-probe-245211:5836106"
 }
 

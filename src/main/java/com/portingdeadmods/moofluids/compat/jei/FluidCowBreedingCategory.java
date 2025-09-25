@@ -3,7 +3,6 @@ package com.portingdeadmods.moofluids.compat.jei;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import com.portingdeadmods.moofluids.ColorUtils;
 import com.portingdeadmods.moofluids.FluidUtils;
 import com.portingdeadmods.moofluids.MooFluids;
 import com.portingdeadmods.moofluids.entity.FluidCow;
@@ -19,8 +18,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
-import net.minecraft.client.renderer.entity.EntityRenderer;
-import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
@@ -29,10 +26,8 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.Fluid;
-import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
-import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 public class FluidCowBreedingCategory extends AbstractRecipeCategory<FluidCowBreedingRecipe> {
@@ -56,6 +51,17 @@ public class FluidCowBreedingCategory extends AbstractRecipeCategory<FluidCowBre
 
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, FluidCowBreedingRecipe recipe, IFocusGroup focuses) {
+        builder.addInvisibleIngredients(mezz.jei.api.recipe.RecipeIngredientRole.INPUT)
+               .addIngredient(mezz.jei.api.neoforge.NeoForgeTypes.FLUID_STACK, 
+                             new net.neoforged.neoforge.fluids.FluidStack(recipe.getParent1(), net.neoforged.neoforge.fluids.FluidType.BUCKET_VOLUME));
+        
+        builder.addInvisibleIngredients(mezz.jei.api.recipe.RecipeIngredientRole.INPUT)
+               .addIngredient(mezz.jei.api.neoforge.NeoForgeTypes.FLUID_STACK, 
+                             new net.neoforged.neoforge.fluids.FluidStack(recipe.getParent2(), net.neoforged.neoforge.fluids.FluidType.BUCKET_VOLUME));
+               
+        builder.addInvisibleIngredients(mezz.jei.api.recipe.RecipeIngredientRole.OUTPUT)
+               .addIngredient(mezz.jei.api.neoforge.NeoForgeTypes.FLUID_STACK, 
+                             new net.neoforged.neoforge.fluids.FluidStack(recipe.getResult(), net.neoforged.neoforge.fluids.FluidType.BUCKET_VOLUME));
     }
 
     @Override

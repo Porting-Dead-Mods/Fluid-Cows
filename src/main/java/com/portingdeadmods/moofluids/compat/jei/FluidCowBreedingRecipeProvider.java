@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FluidCowBreedingRecipeProvider {
+    private static List<FluidCowBreedingRecipe> cachedRecipes = new ArrayList<>();
     
     public static List<FluidCowBreedingRecipe> getBreedingRecipes(IJeiHelpers jeiHelpers) {
         List<FluidCowBreedingRecipe> recipes = new ArrayList<>();
@@ -36,6 +37,11 @@ public class FluidCowBreedingRecipeProvider {
             }
         }
         
+        cachedRecipes = recipes;
         return recipes;
+    }
+    
+    public static List<FluidCowBreedingRecipe> getAllRecipes() {
+        return cachedRecipes;
     }
 }
