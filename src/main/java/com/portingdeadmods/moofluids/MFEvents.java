@@ -114,9 +114,13 @@ public final class MFEvents {
     }
 
     public static boolean checkFluidCowSpawnRules(EntityType<? extends Animal> entityType, ServerLevelAccessor level, MobSpawnType spawnType, BlockPos pos, RandomSource random) {
-        //if (!Animal.checkAnimalSpawnRules(entityType, level, spawnType, pos, random)) {
-        //    return false;
-        //}
+        if (!Animal.checkAnimalSpawnRules(entityType, level, spawnType, pos, random)) {
+            return false;
+        }
+
+        if (!MFConfig.naturalSpawning) {
+            return false;
+        }
 
         if (!MFConfig.dimensionSpawnRestrictions.isEmpty()) {
             ResourceKey<Level> currentDimension = level.getLevel().dimension();
@@ -138,7 +142,9 @@ public final class MFEvents {
                 }
             }
 
-            return hasAnyAllowedFluid;
+            if (!hasAnyAllowedFluid) {
+                return false;
+            }
         }
 
         return true;

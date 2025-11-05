@@ -28,7 +28,7 @@ import java.util.Map;
 
 @Mixin(ServerLifecycleHooks.class)
 public class ServerLifecycleHooksMixin {
-    @ModifyVariable(method = "runModifiers", at = @At(value = "INVOKE", ordinal = 1, target = "Lnet/minecraft/core/RegistryAccess;registryOrThrow(Lnet/minecraft/resources/ResourceKey;)Lnet/minecraft/core/Registry;"))
+    @ModifyVariable(method = "runModifiers", at = @At(value = "STORE"), ordinal = 0)
     private static List<BiomeModifier> mooFluids$runModifiers(final List<BiomeModifier> biomeModifiers, MinecraftServer server) {
         MooFluids.LOGGER.debug("creating spawn modifiers");
 

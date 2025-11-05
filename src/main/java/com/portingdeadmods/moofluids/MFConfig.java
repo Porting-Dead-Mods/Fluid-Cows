@@ -48,11 +48,20 @@ public final class MFConfig {
             .defineListAllowEmpty("dimensionSpawnRestrictions", List.of(), () -> "", MFConfig::validateDimensionSpawn);
 
     public static final ModConfigSpec.ConfigValue<List<? extends String>> BIOME_SPAWN_BLACKLIST = BUILDER
-            .comment("Blacklist specific biomes from spawning fluid cows.")
-            .comment("Format: 'modid:biome'")
+            .comment("Blacklist specific biomes from spawning all fluid cows.")
+            .comment("Format: 'modid:biome' or use tags like '#modid:biome_tag'")
             .comment("Example: 'minecraft:deep_dark'")
             .comment("Example: 'minecraft:mushroom_fields'")
+            .comment("Example: '#minecraft:is_ocean' to blacklist all ocean biomes")
             .defineListAllowEmpty("biomeSpawnBlacklist", List.of("minecraft:deep_dark"), () -> "", obj -> obj instanceof String);
+
+    public static final ModConfigSpec.ConfigValue<List<? extends String>> BIOME_SPAWN_WHITELIST = BUILDER
+            .comment("Whitelist specific biomes for spawning fluid cows (empty = all biomes allowed).")
+            .comment("If this list is not empty, ONLY these biomes will allow fluid cow spawns.")
+            .comment("Format: 'modid:biome' or use tags like '#modid:biome_tag'")
+            .comment("Example: 'minecraft:plains'")
+            .comment("Example: '#minecraft:is_overworld' to allow only overworld biomes")
+            .defineListAllowEmpty("biomeSpawnWhitelist", List.of(), () -> "", obj -> obj instanceof String);
 
     public static final ModConfigSpec.IntValue COW_JAR_CAPACITY = BUILDER
             .comment("The amount of fluid the cow jar can hold")
@@ -64,7 +73,8 @@ public final class MFConfig {
     public static boolean milkCow;
     public static Set<String> fluidBlacklist;
     public static Map<ResourceLocation, ResourceLocation> dimensionSpawnRestrictions;
-    public static Set<ResourceLocation> biomeSpawnBlacklist;
+    public static List<String> biomeSpawnBlacklist;
+    public static List<String> biomeSpawnWhitelist;
 
     @SubscribeEvent
     static void onLoad(final ModConfigEvent event) {
@@ -81,10 +91,8 @@ public final class MFConfig {
             }
         }
 
-        biomeSpawnBlacklist = new HashSet<>();
-        for (String biome : BIOME_SPAWN_BLACKLIST.get()) {
-            biomeSpawnBlacklist.add(ResourceLocation.parse(biome));
-        }
+        biomeSpawnBlacklist = new java.util.ArrayList<>(BIOME_SPAWN_BLACKLIST.get());
+        biomeSpawnWhitelist = new java.util.ArrayList<>(BIOME_SPAWN_WHITELIST.get());
     }
 
     private static boolean validateFluidName(final Object obj) {

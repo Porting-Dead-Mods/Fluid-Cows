@@ -2,6 +2,7 @@ package com.portingdeadmods.moofluids;
 
 import com.google.common.collect.ImmutableList;
 import com.portingdeadmods.moofluids.entity.MFEntities;
+import com.portingdeadmods.moofluids.world.FluidCowSpawnBiomeModifier;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -53,24 +54,51 @@ public final class Utils {
     }
 
     public static void createSpawnModifiers(MinecraftServer server, List<BiomeModifier> biomeModifiers1) {
+        if (!MFConfig.naturalSpawning) {
+            MooFluids.LOGGER.debug("Natural spawning disabled, skipping spawn modifiers");
+            return;
+        }
+
         Map<ResourceLocation, ResourceLocation> spawnRestrictions = MFConfig.dimensionSpawnRestrictions;
-        for (Map.Entry<ResourceLocation, ResourceLocation> entry : spawnRestrictions.entrySet()) {
-            LevelStem levelStem = server.registryAccess().registryOrThrow(Registries.LEVEL_STEM).get(entry.getValue());
-            if (levelStem != null) {
-                Set<Holder<Biome>> biomes = levelStem.generator().getBiomeSource().possibleBiomes();
-                
-                // Filter out blacklisted biomes
-                List<Holder<Biome>> filteredBiomes = biomes.stream()
-                        .filter(biomeHolder -> !MFConfig.biomeSpawnBlacklist.contains(biomeHolder.unwrapKey().get().location()))
-                        .toList();
-                
-                if (!filteredBiomes.isEmpty()) {
-                    biomeModifiers1.add(BiomeModifiers.AddSpawnsBiomeModifier.singleSpawn(
-                            HolderSet.direct(filteredBiomes),
-                            new MobSpawnSettings.SpawnerData(MFEntities.FLUID_COW.get(), 50, 16, 32)
-                    ));
+        
+        if (!spawnRestrictions.isEmpty()) {
+            for (Map.Entry<ResourceLocation, ResourceLocation> entry : spawnRestrictions.entrySet()) {
+                LevelStem levelStem = server.registryAccess().registryOrThrow(Registries.LEVEL_STEM).get(entry.getValue());
+                if (levelStem != null) {
+                    Set<Holder<Biome>> biomes = levelStem.generator().getBiomeSource().possibleBiomes();
+                    
+                    if (!biomes.isEmpty()) {
+                        List<MobSpawnSettings.SpawnerData> spawners = List.of(
+                                new MobSpawnSettings.SpawnerData(MFEntities.FLUID_COW.get(), 8, 4, 4)
+                        );
+                        
+                        biomeModifiers1.add(new FluidCowSpawnBiomeModifier(
+                                HolderSet.direct(biomes.stream().toList()),
+                                spawners,
+                                MFConfig.biomeSpawnBlacklist,
+                                MFConfig.biomeSpawnWhitelist
+                        ));
+                    }
                 }
             }
+        } else {
+            var biomeRegistry = server.registryAccess().registryOrThrow(Registries.BIOME);
+            List<Holder.Reference<Biome>> allBiomes = biomeRegistry.holders().toList();
+            
+            if (!allBiomes.isEmpty()) {
+                List<MobSpawnSettings.SpawnerData> spawners = List.of(
+                        new MobSpawnSettings.SpawnerData(MFEntities.FLUID_COW.get(), 8, 4, 4)
+                );
+                
+                biomeModifiers1.add(new FluidCowSpawnBiomeModifier(
+                        HolderSet.direct(allBiomes),
+                        spawners,
+                        MFConfig.biomeSpawnBlacklist,
+                        MFConfig.biomeSpawnWhitelist
+                ));
+            }
         }
+        
+        MooFluids.LOGGER.debug("Created {} spawn modifiers", biomeModifiers1.size());
     }
 }

@@ -8,6 +8,7 @@ import com.portingdeadmods.moofluids.items.FluidCowJarBEWLR;
 import com.portingdeadmods.moofluids.items.FluidCowJarBlockItem;
 import com.portingdeadmods.moofluids.items.MFItems;
 import com.portingdeadmods.moofluids.recipe.MFRecipes;
+import com.portingdeadmods.moofluids.world.MFBiomeModifiers;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
@@ -43,6 +44,7 @@ public final class MooFluids {
         MFRecipes.RECIPE_TYPES.register(modEventbus);
         MFRecipes.RECIPE_SERIALIZERS.register(modEventbus);
         MFCreativeTabs.CREATIVE_MODE_TABS.register(modEventbus);
+        MFBiomeModifiers.BIOME_MODIFIER_SERIALIZERS.register(modEventbus);
         
         if (ModList.get().isLoaded("theoneprobe")) {
             MFTOPPlugin.registerCompatibility();
