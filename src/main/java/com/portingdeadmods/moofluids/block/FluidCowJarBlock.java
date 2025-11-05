@@ -4,6 +4,7 @@ import com.mojang.serialization.MapCodec;
 import com.portingdeadmods.moofluids.block.entity.FluidCowJarBlockEntity;
 import com.portingdeadmods.moofluids.block.entity.MFBlockEntities;
 import com.portingdeadmods.moofluids.entity.FluidCow;
+import com.portingdeadmods.moofluids.entity.MFEntities;
 import com.portingdeadmods.moofluids.items.FluidCowJarBlockItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -82,6 +83,26 @@ public class FluidCowJarBlock extends BaseEntityBlock {
 
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult blockHitResult) {
+        if (!level.isClientSide && player.isShiftKeyDown()) {
+            BlockEntity blockEntity = level.getBlockEntity(pos);
+            if (blockEntity instanceof FluidCowJarBlockEntity fluidCowJar) {
+                if (fluidCowJar.hasCow()) {
+                    FluidCow cow = new FluidCow(MFEntities.FLUID_COW.get(), level);
+                    cow.setPos(pos.getX() + 0.5, pos.getY() + 1.0, pos.getZ() + 0.5);
+                    cow.setFluid(fluidCowJar.getCowFluid().builtInRegistryHolder().key().location().toString());
+                    cow.setDelay(0);
+                    
+                    if (fluidCowJar.hasCustomName()) {
+                        cow.setCustomName(fluidCowJar.getCustomName());
+                    }
+                    
+                    level.addFreshEntity(cow);
+                    fluidCowJar.removeFluidCow();
+                    
+                    return InteractionResult.SUCCESS;
+                }
+            }
+        }
         return InteractionResult.PASS;
     }
 

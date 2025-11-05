@@ -43,7 +43,11 @@ public final class FluidCowJarTopProvider implements IProbeInfoProvider {
                                 .append(Component.literal(fluidAmount + " / " + capacity + " mB")
                                         .withStyle(ChatFormatting.YELLOW)));
 
-                if (fluidCowJar.canBeMilked()) {
+                if (!fluidCowJar.getFluidTank().isEmpty() && fluidCowJar.getFluidTank().getFluid().getFluid() != fluidCowJar.getCowFluid()) {
+                    probeInfo.horizontal()
+                            .text(Component.translatable("moofluids.top.fluid_mismatch")
+                                    .withStyle(ChatFormatting.RED));
+                } else if (fluidCowJar.canBeMilked()) {
                     probeInfo.horizontal()
                             .text(Component.translatable("moofluids.top.ready")
                                     .withStyle(ChatFormatting.GREEN));

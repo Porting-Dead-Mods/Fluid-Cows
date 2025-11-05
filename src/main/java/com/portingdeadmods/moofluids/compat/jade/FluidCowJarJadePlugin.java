@@ -26,7 +26,9 @@ public enum FluidCowJarJadePlugin implements IBlockComponentProvider {
                 int fluidAmount = fluidCowJar.getFluidTank().getFluidAmount();
                 int capacity = fluidCowJar.getFluidTank().getCapacity();
 
-                if (fluidCowJar.canBeMilked()) {
+                if (!fluidCowJar.getFluidTank().isEmpty() && fluidCowJar.getFluidTank().getFluid().getFluid() != fluidCowJar.getCowFluid()) {
+                    tooltip.add(Component.translatable("moofluids.jade.fluid_mismatch").withStyle(Style.EMPTY.withColor(0xFF5555)));
+                } else if (fluidCowJar.canBeMilked()) {
                     tooltip.add(Component.literal("Status: Ready to generate"));
                 } else {
                     int cooldown = fluidCowJar.getMilkingCooldown();

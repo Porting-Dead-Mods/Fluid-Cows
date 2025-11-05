@@ -45,6 +45,7 @@ public class FluidCowJarBlockItem extends BlockItem {
             FluidStack fluidStack = new FluidStack(fluid, 1);
             int color = FluidUtils.getFluidColor(fluid);
             tooltip.add(Component.translatable("tooltip.moofluids.fluid_cow_jar.contains", fluidStack.getDisplayName().copy().setStyle(Style.EMPTY.withColor(color))));
+            tooltip.add(Component.translatable("tooltip.moofluids.fluid_cow_jar.release").withStyle(ChatFormatting.GRAY));
         } else {
             tooltip.add(Component.translatable("tooltip.moofluids.fluid_cow_jar.hint").withStyle(ChatFormatting.GRAY));
         }
