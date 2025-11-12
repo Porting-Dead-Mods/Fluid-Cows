@@ -1,6 +1,7 @@
 package com.portingdeadmods.moofluids.entity;
 
 import com.google.common.collect.ImmutableList;
+import com.portingdeadmods.moofluids.FluidUtils;
 import com.portingdeadmods.moofluids.MFConfig;
 import com.portingdeadmods.moofluids.Utils;
 import com.portingdeadmods.moofluids.recipe.AlloyRecipe;
@@ -128,6 +129,10 @@ public class FluidCow extends Cow {
     @Override
     public void aiStep() {
         super.aiStep();
+
+        if (!this.level().isClientSide && this.getFluid() != Fluids.EMPTY && FluidUtils.isFluidBlacklisted(this.getFluid())) {
+            this.entityData.set(FLUID_NAME, BuiltInRegistries.FLUID.getKey(BuiltInRegistries.FLUID.get(ResourceLocation.withDefaultNamespace("milk"))).toString());
+        }
 
         if (this.getDelay() > 0 && !this.canBeMilked()) {
             this.decreaseDelay();
