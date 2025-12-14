@@ -26,7 +26,7 @@ public class MFBlocks {
                     .sound(SoundType.GLASS)
                     .strength(0.6f)
                     .noOcclusion()
-                    .lightLevel(state -> 15)),
+                    .lightLevel(state -> state.getValue(FluidCowJarBlock.LIGHT_LEVEL))),
             FluidCowJarBlockItem::new);
 
     private static <T extends Block> DeferredHolder<Block, T> registerBlock(String name, Supplier<T> block) {

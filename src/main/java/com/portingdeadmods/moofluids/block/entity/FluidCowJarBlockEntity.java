@@ -2,6 +2,7 @@ package com.portingdeadmods.moofluids.block.entity;
 
 import com.portingdeadmods.moofluids.FluidUtils;
 import com.portingdeadmods.moofluids.MFConfig;
+import com.portingdeadmods.moofluids.block.FluidCowJarBlock;
 import com.portingdeadmods.moofluids.data.CowJarDataComponent;
 import com.portingdeadmods.moofluids.entity.FluidCow;
 import com.portingdeadmods.moofluids.items.FluidCowJarBlockItem;
@@ -153,7 +154,8 @@ public class FluidCowJarBlockEntity extends BlockEntity {
             this.hasCow = true;
             setChanged();
             if (level != null && !level.isClientSide) {
-                level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+                int lightLevel = cowFluid.getFluidType().getLightLevel();
+                level.setBlock(worldPosition, getBlockState().setValue(FluidCowJarBlock.LIGHT_LEVEL, lightLevel), 3);
             }
             return true;
         }
@@ -165,7 +167,7 @@ public class FluidCowJarBlockEntity extends BlockEntity {
         this.cowFluid = Fluids.EMPTY;
         setChanged();
         if (level != null && !level.isClientSide) {
-            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+            level.setBlock(worldPosition, getBlockState().setValue(FluidCowJarBlock.LIGHT_LEVEL, 0), 3);
         }
     }
 
@@ -222,5 +224,18 @@ public class FluidCowJarBlockEntity extends BlockEntity {
         super.saveToItem(stack, registries);
         stack.set(FluidCowJarBlockItem.FLUID_TANK.get(), SimpleFluidContent.copyOf(this.getFluidTank().getFluid()));
         stack.set(FluidCowJarBlockItem.COW_JAR_DATA.get(), new CowJarDataComponent(this.hasCow(), this.getCowFluid(), this.getFluidTank().getCapacity()));
+    }
+
+    public void loadFromItem(CowJarDataComponent cowData, SimpleFluidContent fluidContent) {
+        this.hasCow = cowData.hasCow();
+        this.cowFluid = cowData.fluid();
+        if (fluidContent != null && !fluidContent.isEmpty()) {
+            this.fluidTank.setFluid(fluidContent.copy());
+        }
+        setChanged();
+        if (level != null && !level.isClientSide) {
+            int lightLevel = hasCow && cowFluid != Fluids.EMPTY ? cowFluid.getFluidType().getLightLevel() : 0;
+            level.setBlock(worldPosition, getBlockState().setValue(FluidCowJarBlock.LIGHT_LEVEL, lightLevel), 3);
+        }
     }
 }

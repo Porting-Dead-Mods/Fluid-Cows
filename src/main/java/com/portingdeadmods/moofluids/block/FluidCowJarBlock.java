@@ -4,6 +4,7 @@ import com.mojang.serialization.MapCodec;
 import com.portingdeadmods.moofluids.FluidUtils;
 import com.portingdeadmods.moofluids.block.entity.FluidCowJarBlockEntity;
 import com.portingdeadmods.moofluids.block.entity.MFBlockEntities;
+import com.portingdeadmods.moofluids.data.CowJarDataComponent;
 import com.portingdeadmods.moofluids.entity.FluidCow;
 import com.portingdeadmods.moofluids.entity.MFEntities;
 import com.portingdeadmods.moofluids.items.FluidCowJarBlockItem;
@@ -32,6 +33,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.AABB;
@@ -51,6 +53,7 @@ public class FluidCowJarBlock extends BaseEntityBlock {
 
     public static final MapCodec<FluidCowJarBlock> CODEC = simpleCodec(FluidCowJarBlock::new);
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
+    public static final IntegerProperty LIGHT_LEVEL = IntegerProperty.create("light_level", 0, 15);
 
     public static final VoxelShape SHAPE = Shapes.or(
             Block.box(4, 0, 4, 12, 10, 12),  // main jar
@@ -59,6 +62,7 @@ public class FluidCowJarBlock extends BaseEntityBlock {
 
     public FluidCowJarBlock(Properties properties) {
         super(properties.sound(SoundType.GLASS).strength(0.6f));
+        this.registerDefaultState(this.stateDefinition.any().setValue(LIGHT_LEVEL, 0));
     }
 
     @Override
@@ -73,8 +77,22 @@ public class FluidCowJarBlock extends BaseEntityBlock {
     }
 
     @Override
+    public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
+        super.setPlacedBy(level, pos, state, placer, stack);
+        if (!level.isClientSide) {
+            BlockEntity blockEntity = level.getBlockEntity(pos);
+            if (blockEntity instanceof FluidCowJarBlockEntity fluidCowJar) {
+                CowJarDataComponent cowData = stack.get(FluidCowJarBlockItem.COW_JAR_DATA.get());
+                if (cowData != null && cowData.hasCow()) {
+                    fluidCowJar.loadFromItem(cowData, stack.get(FluidCowJarBlockItem.FLUID_TANK.get()));
+                }
+            }
+        }
+    }
+
+    @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING);
+        builder.add(FACING, LIGHT_LEVEL);
     }
 
     @Override
@@ -90,6 +108,7 @@ public class FluidCowJarBlock extends BaseEntityBlock {
                 if (fluidCowJar.hasCow()) {
                     // Prevent releasing blacklisted cows
                     if (FluidUtils.isFluidBlacklisted(fluidCowJar.getCowFluid())) {
+                        player.displayClientMessage(net.minecraft.network.chat.Component.translatable("message.moofluids.cow_blacklisted"), true);
                         return InteractionResult.SUCCESS;
                     }
 
