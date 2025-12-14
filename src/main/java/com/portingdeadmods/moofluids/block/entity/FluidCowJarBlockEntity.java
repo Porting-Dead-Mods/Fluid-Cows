@@ -130,12 +130,6 @@ public class FluidCowJarBlockEntity extends BlockEntity {
     }
 
     public void serverTick(Level level, BlockPos pos, BlockState state) {
-        if (hasCow && cowFluid != Fluids.EMPTY && FluidUtils.isFluidBlacklisted(cowFluid)) {
-            this.cowFluid = BuiltInRegistries.FLUID.get(ResourceLocation.withDefaultNamespace("milk"));
-            this.fluidTank.setFluid(FluidStack.EMPTY);
-            isDirty = true;
-        }
-
         if (hasCow && cowFluid != Fluids.EMPTY && fluidTank.getFluidAmount() < MFConfig.COW_JAR_CAPACITY.getAsInt()) {
             FluidStack toAdd = new FluidStack(cowFluid, 1);
             int filled = fluidTank.fill(toAdd, IFluidHandler.FluidAction.EXECUTE);

@@ -1,6 +1,7 @@
 package com.portingdeadmods.moofluids.block;
 
 import com.mojang.serialization.MapCodec;
+import com.portingdeadmods.moofluids.FluidUtils;
 import com.portingdeadmods.moofluids.block.entity.FluidCowJarBlockEntity;
 import com.portingdeadmods.moofluids.block.entity.MFBlockEntities;
 import com.portingdeadmods.moofluids.entity.FluidCow;
@@ -87,18 +88,23 @@ public class FluidCowJarBlock extends BaseEntityBlock {
             BlockEntity blockEntity = level.getBlockEntity(pos);
             if (blockEntity instanceof FluidCowJarBlockEntity fluidCowJar) {
                 if (fluidCowJar.hasCow()) {
+                    // Prevent releasing blacklisted cows
+                    if (FluidUtils.isFluidBlacklisted(fluidCowJar.getCowFluid())) {
+                        return InteractionResult.SUCCESS;
+                    }
+
                     FluidCow cow = new FluidCow(MFEntities.FLUID_COW.get(), level);
                     cow.setPos(pos.getX() + 0.5, pos.getY() + 1.0, pos.getZ() + 0.5);
                     cow.setFluid(fluidCowJar.getCowFluid().builtInRegistryHolder().key().location().toString());
                     cow.setDelay(0);
-                    
+
                     if (fluidCowJar.hasCustomName()) {
                         cow.setCustomName(fluidCowJar.getCustomName());
                     }
-                    
+
                     level.addFreshEntity(cow);
                     fluidCowJar.removeFluidCow();
-                    
+
                     return InteractionResult.SUCCESS;
                 }
             }

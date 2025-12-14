@@ -8,10 +8,10 @@
   ],
   "key": {
     "I": {
-      "item": "minecraft:oak_slab"
+      "tag": "minecraft:wooden_slabs"
     },
     "G": {
-      "item": "minecraft:glass"
+      "tag": "c:glass_blocks"
     },
     "C": {
       "item": "minecraft:bucket"
