@@ -21,9 +21,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -199,9 +199,7 @@ public class FluidCowJarBlock extends BaseEntityBlock {
 
     private void checkForAnvilCrushing(Level level, BlockPos pos, BlockState state, Entity entity) {
         if (entity instanceof FallingBlockEntity fallingBlock) {
-            if (fallingBlock.getBlockState().is(Blocks.ANVIL) || 
-                fallingBlock.getBlockState().is(Blocks.CHIPPED_ANVIL) ||
-                fallingBlock.getBlockState().is(Blocks.DAMAGED_ANVIL)) {
+            if (fallingBlock.getBlockState().is(BlockTags.ANVIL)) {
 
                 AABB searchArea = new AABB(pos).expandTowards(0, 2, 0);
                 List<FluidCow> nearbyCows = level.getEntitiesOfClass(FluidCow.class, searchArea);
@@ -222,8 +220,8 @@ public class FluidCowJarBlock extends BaseEntityBlock {
     private void checkForAnvilAbove(Level level, BlockPos pos, BlockState state) {
         BlockPos abovePos = pos.above();
         BlockState aboveState = level.getBlockState(abovePos);
-        
-        if (aboveState.is(Blocks.ANVIL) || aboveState.is(Blocks.CHIPPED_ANVIL) || aboveState.is(Blocks.DAMAGED_ANVIL)) {
+
+        if (aboveState.is(BlockTags.ANVIL)) {
             AABB searchArea = new AABB(pos).expandTowards(0, 2, 0);
             List<FluidCow> nearbyCows = level.getEntitiesOfClass(FluidCow.class, searchArea);
             
