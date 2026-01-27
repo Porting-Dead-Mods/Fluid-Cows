@@ -165,11 +165,10 @@ public class FluidCowJarBlock extends BaseEntityBlock {
         } else {
             FluidStack fluidStack = FluidUtil.getFluidContained(stack).orElse(FluidStack.EMPTY);
             if (!fluidStack.isEmpty()) {
-                int filled = fluidCowJar.getFluidTank().fill(fluidStack, IFluidHandler.FluidAction.SIMULATE);
-                if (filled >= 1000) {
-                    fluidCowJar.getFluidTank().fill(new FluidStack(fluidStack.getFluid(), 1000), IFluidHandler.FluidAction.EXECUTE);
+                var result = FluidUtil.tryEmptyContainer(stack, fluidCowJar.getFluidTank(), 1000, player, true);
+                if (result.isSuccess()) {
                     if (!player.getAbilities().instabuild) {
-                        player.setItemInHand(hand, new ItemStack(Items.BUCKET));
+                        player.setItemInHand(hand, result.result);
                     }
                     return ItemInteractionResult.SUCCESS;
                 }
